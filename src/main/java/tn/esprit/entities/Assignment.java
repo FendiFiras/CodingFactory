@@ -19,7 +19,7 @@ public class Assignment {
     private Long idAffectation;
     private String status;
     private Date startDate;
-    private Date endDate;
+    private Date endDatee;
     @ManyToOne @JoinColumn(name = "user_id")
     private User user; // Assigned by User (Manager)
 

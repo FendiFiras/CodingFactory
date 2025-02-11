@@ -22,9 +22,9 @@ public class User {
 
     private String firstName;
     private String lastName;
-    private String password;
-    private LocalDateTime dateOfBirth;
 
+    private LocalDateTime dateOfBirth;
+    private String password;
     @Enumerated(EnumType.STRING)
     private Gender gender;
 

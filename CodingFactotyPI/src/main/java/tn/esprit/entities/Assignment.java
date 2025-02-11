@@ -17,8 +17,9 @@ import java.util.List;
 public class Assignment {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idAffectation;
-    private String status;
+
     private Date startDate;
+    private String status;
     private Date endDate;
     @ManyToOne @JoinColumn(name = "user_id")
     private User user; // Assigned by User (Manager)

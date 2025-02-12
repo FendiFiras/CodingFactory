@@ -20,11 +20,9 @@ public class Partnership {
     private Date startDate;
     private Date endDate;
 
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Company User
 
-    @OneToMany(mappedBy = "partnership")
-    private List<Assignment> assignments;
+
+
 
 
 

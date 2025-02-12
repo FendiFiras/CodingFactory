@@ -85,24 +85,37 @@ public class User {
 
     @OneToMany(cascade = CascadeType.ALL)
     private List<Likeee> likeees;
-    @OneToMany(mappedBy = "user")
-    private List<Partnership> partnerships;
+   
 
-    @OneToMany(mappedBy = "user")
-    private List<Assignment> assignments;
 
-    @OneToMany(mappedBy = "user")
-    private List<Evaluation> evaluations;
 
-    @OneToMany(mappedBy = "user")
-    private List<Offer> offers;
 
-    @OneToMany(mappedBy = "user")
-    private List<Application> applications;
+
+
+
+
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
     private Set<Event> events;
 
     @OneToMany(mappedBy = "user")
     private List<Reclamation> reclamations;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Offer> offers;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Application> applications;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Evaluation> evaluationss;
+    @OneToOne
+    private Evaluation evaluation;
+    @OneToMany(cascade = CascadeType.ALL)
+    private  Set<Registration> registrations;
+    @OneToOne
+    private Partnership partnership;
+    @OneToOne
+    private Assignment assignment;
 }
 

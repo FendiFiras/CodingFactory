@@ -22,9 +22,9 @@ public class User {
 
     private String firstName;
     private String lastName;
-    private String password;
-    private LocalDateTime dateOfBirth;
 
+    private LocalDateTime dateOfBirth;
+    private String password;
     @Enumerated(EnumType.STRING)
     private Gender gender;
 
@@ -79,14 +79,14 @@ public class User {
     @OneToMany( cascade = CascadeType.ALL)
     private List<Discussion> discussions;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Message> messages;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private List<Like> likes;
+    @OneToMany( cascade = CascadeType.ALL)
+    private List<Likeee> likeees;
     @OneToMany(mappedBy = "user")
     private List<Partnership> partnerships;
 

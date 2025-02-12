@@ -11,7 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Like {
+public class Likeee {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long like_id;
@@ -22,8 +22,7 @@ public class Like {
     @ManyToOne
     private Message message;
 
-    @ManyToOne
-    private User user;
+
 
 
 }

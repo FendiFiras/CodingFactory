@@ -27,7 +27,7 @@ public class Forum {
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
-    @OneToMany(mappedBy = "forum", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Discussion> discussions;
 
 

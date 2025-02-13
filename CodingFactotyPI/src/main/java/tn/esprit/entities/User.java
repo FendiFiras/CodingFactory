@@ -53,8 +53,8 @@ public class User {
     private Role role;
 
 
-    @ManyToMany(mappedBy="Users",cascade = CascadeType.ALL)
-    private Set<Training>trainings;
+    @ManyToMany(mappedBy = "Users", cascade = CascadeType.ALL)
+    private Set<Training> trainings;
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Quiz> Quizs;
     @OneToMany(cascade = CascadeType.ALL)
@@ -71,40 +71,50 @@ public class User {
     private Set<LoginHistory> loginHistories;
 
 
-
-
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Forum> Forums;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Discussion> discussions;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Message> messages;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL)
     private List<Likeee> likeees;
-    @OneToMany(mappedBy = "user")
-    private List<Partnership> partnerships;
 
-    @OneToMany(mappedBy = "user")
-    private List<Assignment> assignments;
 
-    @OneToMany(mappedBy = "user")
-    private List<Evaluation> evaluations;
 
-    @OneToMany(mappedBy = "user")
-    private List<Offer> offers;
 
-    @OneToMany(mappedBy = "user")
-    private List<Application> applications;
-    @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
-    private Set<Event>events;
+
+
+
+
+
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private Set<Event> events;
 
     @OneToMany(mappedBy = "user")
     private List<Reclamation> reclamations;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Offer> offers;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Application> applications;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Evaluation> evaluationss;
+    @OneToOne
+    private Evaluation evaluation;
+    @OneToMany(cascade = CascadeType.ALL)
+    private  Set<Registration> registrations;
+    @OneToOne
+    private Partnership partnership;
+    @OneToOne
+    private Assignment assignment;
 }

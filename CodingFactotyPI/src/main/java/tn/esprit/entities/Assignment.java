@@ -20,13 +20,10 @@ public class Assignment {
     private String status;
     private Date startDate;
     private Date endDate;
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Assigned by User (Manager)
 
-    @ManyToOne @JoinColumn(name = "partnership_id")
-    private Partnership partnership;
 
-    @OneToMany(mappedBy = "assignment")
-    private List<Evaluation> evaluations;
+
+    @OneToOne
+    private Evaluation evaluation;
 
 }

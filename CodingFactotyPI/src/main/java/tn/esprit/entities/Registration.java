@@ -25,6 +25,6 @@ public class Registration {
 
     private String status;
     @ManyToOne
-    Event Revent;
+    private Event Revent;
 
 }

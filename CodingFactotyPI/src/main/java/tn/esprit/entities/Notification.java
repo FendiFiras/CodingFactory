@@ -20,6 +20,6 @@ public class Notification {
     private LocalDateTime sentDate;
 
     @ManyToOne
-    Event events;
+    private Event events;
 }
 

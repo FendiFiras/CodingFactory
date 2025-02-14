@@ -29,7 +29,7 @@ public class Quiz {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<QuizQuestion> QuizQuestions;
     @OneToMany(cascade= CascadeType.ALL, mappedBy="quiz")
-    private Set<StudentResponse> studentResponses;
+    private Set<Response> studentResponses;
 
 
 

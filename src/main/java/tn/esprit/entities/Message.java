@@ -34,6 +34,6 @@ public class Message {
     private List<Report> reports;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
-    private List<Likeee> likeees;
+    private List<Like> likeees;
 
 }

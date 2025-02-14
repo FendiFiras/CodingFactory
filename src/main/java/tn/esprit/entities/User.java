@@ -58,7 +58,7 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Quiz> Quizs;
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<StudentResponse> studentResponses;
+    private Set<Response> studentResponses;
 
     @OneToOne
     private UserPreference userPreference;
@@ -84,7 +84,7 @@ public class User {
     private List<Report> reports;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Likeee> likeees;
+    private List<Like> likeees;
    
 
 

@@ -1,6 +1,7 @@
 package tn.esprit.controllers;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import org.aspectj.apache.bcel.generic.RET;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -16,13 +17,13 @@ public class TrainingController {
     @Autowired
     private IServiceTraining serviceTraining; // Injection automatique du service
 
-    @PostMapping("/addtraining")
+    @PostMapping("/addtraining/{userId}")
     public Training addTraining(@RequestBody Training training, @RequestParam Long userId) {
-        // Appel de la méthode du service pour ajouter un Training
-        Training savedTraining = serviceTraining.addTraining(training, userId); // Enregistrement de la formation
 
-        // Retourner l'objet enregistré (pas l'objet d'entrée)
-        return savedTraining;
+
+       return  serviceTraining.addTraining(training, userId); // Enregistrement de la formation
+
+
     }
 
 
@@ -47,6 +48,10 @@ public class TrainingController {
     @GetMapping("/trainings")
     public List<Training> getAllTrainings() {
         return serviceTraining.getAllTrainings();
+    }
+    @PutMapping("/assign-quiz/{trainingId}/{quizId}")
+    public void affecterQuizTraining(@PathVariable Long trainingId, @PathVariable Long quizId) {
+        serviceTraining.affecterQuizTraining(trainingId, quizId);
     }
 
 

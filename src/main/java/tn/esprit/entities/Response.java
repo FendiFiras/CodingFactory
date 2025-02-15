@@ -21,6 +21,7 @@ public class Response {
     private String givenResponse;
     private boolean isCorrect;
     private boolean scoreObtained;
+
     @ManyToOne
     Quiz quiz;
 

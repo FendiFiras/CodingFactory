@@ -2,9 +2,11 @@ package tn.esprit.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.entities.Quiz;
 import tn.esprit.entities.Role;
 import tn.esprit.entities.Training;
 import tn.esprit.entities.User;
+import tn.esprit.repositories.QuizRepo;
 import tn.esprit.repositories.TrainingRepository;
 import tn.esprit.repositories.UserRepo;
 
@@ -21,6 +23,7 @@ public class ServiceTraining  implements IServiceTraining {
 
     UserRepo userRepo;
     TrainingRepository trainingRepo;
+    QuizRepo quizRepo;
 
     public Training addTraining(Training training, Long userId) {
         Set<User> validUsers = new HashSet<>(); // Crée un Set pour stocker un seul utilisateur valide.
@@ -90,6 +93,21 @@ public class ServiceTraining  implements IServiceTraining {
     }
     public List<Training> getAllTrainings() {
         return trainingRepo.findAll(); // Récupère toutes les formations de la base de données
+    }
+    public void affecterQuizTraining(Long trainingId, Long quizId) {
+        // Récupérer le training par son ID
+        Training training = trainingRepo.findById(trainingId)
+                .orElseThrow(() -> new IllegalArgumentException("Training not found with ID: " + trainingId));
+
+        // Récupérer le quiz par son ID
+        Quiz quiz = quizRepo.findById(quizId)
+                .orElseThrow(() -> new IllegalArgumentException("Quiz not found with ID: " + quizId));
+
+        // Associer le quiz au training
+        training.setQuiz(quiz);
+
+        // Sauvegarder le training mis à jour
+        trainingRepo.save(training);
     }
 
 }

@@ -8,6 +8,8 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import  lombok.*;
 
+import java.util.Set;
+
 
 @Entity
 @Getter
@@ -28,5 +30,8 @@ public class Courses {
 
     @ManyToOne
     Training training;
+    @JsonIgnore
+    @OneToMany(cascade= CascadeType.ALL, mappedBy="courses")
+    private Set<Session> sessions;
 
 }

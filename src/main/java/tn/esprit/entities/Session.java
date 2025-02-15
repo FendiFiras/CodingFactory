@@ -21,4 +21,8 @@ public class Session {
     private String program;
     private Date startTime;
     private Date endTime;
+
+    @ManyToOne
+    Courses courses;
+
 }

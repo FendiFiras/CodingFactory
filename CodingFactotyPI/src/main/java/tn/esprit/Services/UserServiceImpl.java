@@ -2,6 +2,7 @@ package tn.esprit.Services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.entities.Role;
 import tn.esprit.entities.User;
 import tn.esprit.Repository.UserRepository;
 
@@ -45,6 +46,8 @@ public class UserServiceImpl implements IUserService {
 
     @Override
     public List<User> findByRole(String role) {
-        return userRepository.findByRole(role);
+        Role roleEnum = Role.valueOf(role); // Convertir le String en Enum
+        return userRepository.findByRole(roleEnum);
     }
+
 }

@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -24,6 +25,7 @@ public class Courses {
 
     @Enumerated(EnumType.STRING)
     private CourseDifficulty difficulty;
+
     @ManyToOne
     Training training;
 

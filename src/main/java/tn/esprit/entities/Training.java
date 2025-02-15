@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -7,6 +8,7 @@ import lombok.Setter;
 import jakarta.persistence.*;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.Set;
 
 @Entity
@@ -14,6 +16,7 @@ import java.util.Set;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+
 public class Training {
 
 
@@ -27,8 +30,12 @@ public class Training {
 
     @Enumerated(EnumType.STRING)
     private TrainingType type;
-    @ManyToMany(cascade = CascadeType.ALL)
-    private Set<User> Users;
+    @JsonIgnore
+
+    @ManyToMany
+    private Set<User> Users=new HashSet<>();
+    @JsonIgnore
+
     @OneToMany(cascade= CascadeType.ALL, mappedBy="training")
     private Set<Courses> coursess;
     @OneToOne

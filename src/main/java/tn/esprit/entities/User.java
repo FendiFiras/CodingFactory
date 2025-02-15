@@ -53,7 +53,7 @@ public class User {
     private Role role;
 
 
-    @ManyToMany(mappedBy = "Users", cascade = CascadeType.ALL)
+    @ManyToMany(mappedBy = "Users")
     private Set<Training> trainings;
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Quiz> Quizs;

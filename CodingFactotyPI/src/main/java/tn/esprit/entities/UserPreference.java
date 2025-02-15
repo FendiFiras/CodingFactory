@@ -13,9 +13,15 @@ public class UserPreference {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPreference;
 
+    @Column(nullable = false)
     private String theme;
+
+    @Column(nullable = false)
     private String language;
+
+    @Column(nullable = false)
     private Boolean notificationEnabled;
+
     @OneToOne(mappedBy = "userPreference")
     private User user;
 }

@@ -60,12 +60,12 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<StudentResponse> studentResponses;
 
-    @OneToOne
+    @OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
     private UserPreference userPreference;
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-    private Set<UserBanLog> banLogs;
+    private Set<BanLog> banLogs;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     private Set<LoginHistory> loginHistories;
@@ -84,15 +84,7 @@ public class User {
     private List<Report> reports;
 
     @OneToMany(cascade = CascadeType.ALL)
-    private List<Likeee> likeees;
-
-
-
-
-
-
-
-
+    private List<Like> likes;
 
 
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")

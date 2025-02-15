@@ -1,6 +1,6 @@
 package tn.esprit.entities;
 
-public enum TypeRec {
+public enum TypeReclamation {
 
 
     MATERIAL, SERVICE;

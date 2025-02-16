@@ -14,5 +14,8 @@ public interface IServiceQuiz {
     public void deleteQuiz(Long quizId);
     Quiz updateQuiz(Quiz quiz);
     QuizQuestion addQuestionWithAnswers(Long quizId, QuizQuestion question, Set<QuizAnswer> answers);
+    QuizQuestion updateQuestion(QuizQuestion updatedQuestion);
+    QuizAnswer updateAnswer(QuizAnswer updatedAnswer);
+    void deleteQuizQuestion(Long quizQuestionId);
 
 }

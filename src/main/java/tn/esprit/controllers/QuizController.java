@@ -51,6 +51,17 @@ public class QuizController {
     public void addQuestionWithAnswers(@PathVariable Long quizId, @RequestBody QuizQuestion question) {
         serviceQuiz.addQuestionWithAnswers(quizId, question, question.getQuizAnswers());
     }
-
+    @PutMapping("/update_question")
+    public QuizQuestion updateQuestion(@RequestBody QuizQuestion updatedQuestion) {
+        return serviceQuiz.updateQuestion(updatedQuestion);
+    }
+    @PutMapping("/answers_update")
+    public QuizAnswer updateAnswer(@RequestBody QuizAnswer updatedAnswer) {
+        return serviceQuiz.updateAnswer(updatedAnswer);
+    }
+    @DeleteMapping("/DeleteQuestion/{idQ}")
+    public void deleteQuestion(@PathVariable Long idQ) {
+        serviceQuiz.deleteQuizQuestion(idQ);
+    }
 
 }

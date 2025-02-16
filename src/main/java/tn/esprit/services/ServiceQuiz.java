@@ -73,6 +73,51 @@ public class ServiceQuiz implements IServiceQuiz {
 
         return question;
     }
+    public QuizQuestion updateQuestion(QuizQuestion updatedQuestion) {
+        QuizQuestion existingQuestion = quizQuestionRepo.findById(updatedQuestion.getIdQuizQ())
+                .orElseThrow(() -> new IllegalArgumentException("Question introuvable avec ID: " + updatedQuestion.getIdQuizQ()));
 
+        existingQuestion.setQuestionText(updatedQuestion.getQuestionText());
+        existingQuestion.setMaxGrade(updatedQuestion.getMaxGrade());
+
+        return quizQuestionRepo.save(existingQuestion);
+    }
+
+    public QuizAnswer updateAnswer(QuizAnswer updatedAnswer) {
+        QuizAnswer existingAnswer = quizAnswerRepo.findById(updatedAnswer.getIdQuizA())
+                .orElseThrow(() -> new IllegalArgumentException("Réponse introuvable avec ID: " + updatedAnswer.getIdQuizA()));
+
+        existingAnswer.setAnswerText(updatedAnswer.getAnswerText());
+        existingAnswer.setCorrect(updatedAnswer.isCorrect());
+
+        return quizAnswerRepo.save(existingAnswer);
+    }
+
+    public void deleteQuizQuestion(Long quizQuestionId) {
+        // Récupérer la question à supprimer
+        QuizQuestion quizQuestion = quizQuestionRepo.findById(quizQuestionId)
+                .orElseThrow(() -> new RuntimeException("QuizQuestion non trouvée"));
+
+        // Récupérer tous les Quiz
+        List<Quiz> quizzes = quizRepo.findAll();
+        Quiz quizContainingQuestion = null;
+
+        // Trouver le quiz qui contient la question
+        for (Quiz quiz : quizzes) {
+            if (quiz.getQuizQuestions().contains(quizQuestion)) {
+                quizContainingQuestion = quiz;
+                break;
+            }
+        }
+
+        // Si la question est associée à un quiz, on la dissocie
+        if (quizContainingQuestion != null) {
+            quizContainingQuestion.getQuizQuestions().remove(quizQuestion);
+            quizRepo.save(quizContainingQuestion); // Mettre à jour le Quiz
+        }
+
+        // Supprimer la question après dissociation
+        quizQuestionRepo.delete(quizQuestion);
+    }
 
 }

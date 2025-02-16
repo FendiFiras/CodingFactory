@@ -47,6 +47,10 @@ public class QuizController {
 
 
 
+    @PostMapping("/quiz/{quizId}/addQuestion")
+    public void addQuestionWithAnswers(@PathVariable Long quizId, @RequestBody QuizQuestion question) {
+        serviceQuiz.addQuestionWithAnswers(quizId, question, question.getQuizAnswers());
+    }
 
 
 }

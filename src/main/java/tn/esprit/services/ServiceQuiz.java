@@ -10,6 +10,8 @@ import tn.esprit.repositories.QuizQuestionRepo;
 import tn.esprit.repositories.QuizRepo;
 
 import java.util.List;
+import java.util.Set;
+
 @Service
 @AllArgsConstructor
 public class ServiceQuiz implements IServiceQuiz {
@@ -54,5 +56,23 @@ public class ServiceQuiz implements IServiceQuiz {
         // Sauvegarder les changements dans la base de données
         return quizRepo.save(existingQuiz);
     }
+    public QuizQuestion addQuestionWithAnswers(Long quizId, QuizQuestion question, Set<QuizAnswer> answers) {
+        // Récupérer le quiz
+        Quiz quiz = quizRepo.findById(quizId)
+                .orElseThrow(() -> new IllegalArgumentException("Quiz not found with ID: " + quizId));
+
+        // Associer la question au quiz
+        question.setQuizAnswers(answers);
+
+        // Sauvegarder la question avec ses réponses
+        quizQuestionRepo.save(question);
+
+        // Ajouter la question au quiz et sauvegarder
+        quiz.getQuizQuestions().add(question);
+        quizRepo.save(quiz);
+
+        return question;
+    }
+
 
 }

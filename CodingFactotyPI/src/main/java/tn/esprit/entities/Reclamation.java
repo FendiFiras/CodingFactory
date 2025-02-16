@@ -24,7 +24,7 @@ public class Reclamation {
     private Date creationDate;
 
     @Enumerated(EnumType.STRING)
-    private Type type;
+    private TypeRec type;
 
     @Enumerated(EnumType.STRING)
     private TypeStatut status;

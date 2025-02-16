@@ -86,7 +86,7 @@ public class User {
     private List<Report> reports;
 
     @OneToMany( cascade = CascadeType.ALL)
-    private List<Likeee> likeees;
+    private List<Like> likeees;
     @OneToMany(mappedBy = "user")
     private List<Partnership> partnerships;
 

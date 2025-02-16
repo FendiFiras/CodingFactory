@@ -11,13 +11,13 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class Likeee {
+@Table(name = "likeDeslike")
+public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long like_id;
 
-    @Enumerated(EnumType.STRING)
-    private Type type;
+    private boolean likedeslike;
 
     @ManyToOne
     private Message message;

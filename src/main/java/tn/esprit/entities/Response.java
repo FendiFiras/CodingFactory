@@ -1,28 +1,28 @@
 package tn.esprit.entities;
 
-import jakarta.persistence.*;
+import jakarta.persistence.Entity;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import jakarta.persistence.*;
+
+
 
 @Entity
 @Getter
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-@Table(name = "likeDeslike")
-public class Like {
+public class Response {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long like_id;
-
-    private boolean likedeslike;
+    private Long idResponse;
+    private String givenResponse;
+    private boolean isCorrect;
+    private boolean scoreObtained;
 
     @ManyToOne
-    private Message message;
-
-
-
+    Quiz quiz;
 
 }

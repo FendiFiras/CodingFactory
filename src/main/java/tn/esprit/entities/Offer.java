@@ -5,8 +5,10 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.engine.internal.Cascade;
 
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -22,11 +24,16 @@ public class Offer {
     private String requiredSkill;
     private String duration;
     private String status;
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Created by a Company User
 
-    @OneToMany(mappedBy = "offer")
-    private List<Application> applications;
+
+
+    @OneToOne
+    private Assignment assignment;
+
+
+
+    @OneToMany(cascade=CascadeType.ALL)
+    private Set<Application> applicationss;
 
 
 }

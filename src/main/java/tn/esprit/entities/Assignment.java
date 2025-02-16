@@ -19,14 +19,11 @@ public class Assignment {
     private Long idAffectation;
     private String status;
     private Date startDate;
-    private Date endDatee;
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Assigned by User (Manager)
+    private Date endDate;
 
-    @ManyToOne @JoinColumn(name = "partnership_id")
-    private Partnership partnership;
 
-    @OneToMany(mappedBy = "assignment")
-    private List<Evaluation> evaluations;
+   
+    @OneToOne
+    private Evaluation evaluation;
 
 }

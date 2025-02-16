@@ -8,6 +8,8 @@ import lombok.Setter;
 import jakarta.persistence.*;
 import  lombok.*;
 
+import java.util.Set;
+
 @Entity
 @Getter
 @Setter
@@ -21,8 +23,9 @@ public class QuizQuestion {
     private String questionText;
     private int maxGrade;
 
-    @OneToOne
-    private QuizAnswer QuizAnswers;
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<QuizAnswer> QuizAnswers;
+
 
 
 }

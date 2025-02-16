@@ -16,11 +16,7 @@ public class Evaluation {
     private Long idEvaluation;
     private float score;
     private String comment;
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Evaluator
 
-    @ManyToOne @JoinColumn(name = "assignment_id")
-    private Assignment assignment;
 
 
 

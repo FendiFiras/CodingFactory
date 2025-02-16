@@ -51,6 +51,8 @@ public class Event {
     @OneToMany(cascade= CascadeType.ALL, mappedBy="FeedEvent")
     private Set<FeedBackEvent>feedBackEvents;
 
+    @OneToMany(cascade= CascadeType.ALL)
+     private Set<Payment> payments;
 
     @ManyToOne
     User user;

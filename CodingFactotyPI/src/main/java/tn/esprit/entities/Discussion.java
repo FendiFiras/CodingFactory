@@ -19,6 +19,7 @@ public class Discussion {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long discussion_id;
+    private String title;  // Ajout du champ title
 
     private String description;
     private Long numberOfLikes;
@@ -28,6 +29,7 @@ public class Discussion {
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages;
+
 
 
 }

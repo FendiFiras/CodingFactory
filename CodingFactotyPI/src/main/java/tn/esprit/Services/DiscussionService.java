@@ -1,5 +1,7 @@
 package tn.esprit.Services;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.ForumRepository;
@@ -9,6 +11,7 @@ import tn.esprit.entities.Forum;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 @RequiredArgsConstructor
@@ -35,4 +38,48 @@ public class DiscussionService implements IDiscussionService {
 
         return discussion;
     }
+    @Override
+    public Discussion getDiscussionById(Long discussionId) {
+        return discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new RuntimeException("Discussion avec ID " + discussionId + " non trouvée !"));
+    }
+
+    @Override
+    public List<Discussion> getAllDiscussions() {
+        return discussionRepository.findAll();
+    }
+
+    @Override
+    public Discussion updateDiscussion(Long discussionId, Discussion updatedDiscussion) {
+        Discussion existingDiscussion = getDiscussionById(discussionId);
+
+        existingDiscussion.setTitle(updatedDiscussion.getTitle());
+        existingDiscussion.setDescription(updatedDiscussion.getDescription());
+        existingDiscussion.setNumberOfLikes(updatedDiscussion.getNumberOfLikes());
+
+        return discussionRepository.save(existingDiscussion);
+    }
+
+    @Override
+    @Transactional
+    public void deleteDiscussion(Long discussionId) {
+        Discussion discussion = getDiscussionById(discussionId);
+
+        // Récupérer tous les forums et retirer la discussion
+        List<Forum> forums = forumRepository.findAll();
+        for (Forum forum : forums) {
+            if (forum.getDiscussions().remove(discussion)) {
+                forumRepository.save(forum); // Mettre à jour le forum
+                break; // La discussion n'existe que dans un forum, inutile de continuer
+            }
+        }
+
+        discussionRepository.delete(discussion);
+    }
+
+
+
+
+
+
 }

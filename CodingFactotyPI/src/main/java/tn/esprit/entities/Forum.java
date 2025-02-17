@@ -28,6 +28,16 @@ public class Forum {
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
-    @OneToMany( cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Discussion> discussions;
+
+
+   /* @OneToMany(mappedBy = "forum", cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Discussion> discussions;
+
+
+    */
+
+
 }
+

@@ -4,7 +4,9 @@ import tn.esprit.entities.Discussion;
 import java.util.List;
 
 public interface IDiscussionService {
-    Discussion addDiscussion(Discussion discussion, Long forum_id);
+
+    Discussion addDiscussion(Discussion discussion, Long forumId, Long idUser);
+
     Discussion getDiscussionById(Long discussionId);
     List<Discussion> getAllDiscussions();
     Discussion updateDiscussion(Long discussionId, Discussion discussion);

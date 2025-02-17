@@ -14,9 +14,9 @@ public class DiscussionController {
 
     private final IDiscussionService discussionService;
 
-    @PostMapping("/add/{forumId}")
-    public ResponseEntity<Discussion> addDiscussion(@RequestBody Discussion discussion, @PathVariable Long forumId) {
-        Discussion newDiscussion = discussionService.addDiscussion(discussion, forumId);
+    @PostMapping("/add/{forumId}/{idUser}")
+    public ResponseEntity<Discussion> addDiscussion(@RequestBody Discussion discussion, @PathVariable Long forumId , @PathVariable Long idUser) {
+        Discussion newDiscussion = discussionService.addDiscussion(discussion, forumId, idUser);
         return ResponseEntity.ok(newDiscussion);
     }
     @GetMapping("/{discussionId}")

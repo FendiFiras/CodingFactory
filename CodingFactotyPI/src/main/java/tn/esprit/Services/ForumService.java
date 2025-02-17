@@ -2,8 +2,10 @@ package tn.esprit.Services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.Repository.UserRepository;
 import tn.esprit.entities.Forum;
 import tn.esprit.Repository.ForumRepository;
+import tn.esprit.entities.User;
 
 import java.util.List;
 import java.util.Optional;
@@ -13,6 +15,9 @@ public class ForumService implements IForumService {
 
     @Autowired
     private ForumRepository forumRepository;
+
+    @Autowired
+    private UserRepository userRepository;
 
     @Override
     public List<Forum> getAllForums() {
@@ -25,9 +30,20 @@ public class ForumService implements IForumService {
                 .orElseThrow(() -> new RuntimeException("Forum not found with id: " + id));
     }
 
+
+
     @Override
-    public Forum createForum(Forum forum) {
-        return forumRepository.save(forum);
+    public Forum createForum(Long userId, Forum forum) {
+        // Utilisation correcte de findById()
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+
+        forum = forumRepository.save(forum); // Sauvegarde du forum
+
+        user.getForums().add(forum); // Associe le forum à l'utilisateur
+        userRepository.save(user); // Met à jour l'association dans user_forums
+
+        return forum;
     }
 
     @Override

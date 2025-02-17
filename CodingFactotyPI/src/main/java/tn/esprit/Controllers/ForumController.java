@@ -26,10 +26,11 @@ public class ForumController {
         return ResponseEntity.ok(forumService.getForumById(id));
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Forum> createForum(@RequestBody Forum forum) {
-        return ResponseEntity.ok(forumService.createForum(forum));
+    @PostMapping("/create/{userId}")
+    public ResponseEntity<Forum> createForum(@PathVariable Long userId, @RequestBody Forum forum) {
+        return ResponseEntity.ok(forumService.createForum(userId, forum));
     }
+
 
     @PutMapping("/update/{id}")
     public ResponseEntity<Forum> updateForum(@PathVariable Long id, @RequestBody Forum forum) {

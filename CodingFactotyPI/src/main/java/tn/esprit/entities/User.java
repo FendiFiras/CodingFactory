@@ -60,8 +60,9 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<StudentResponse> studentResponses;
 
-    @OneToOne(cascade = CascadeType.ALL,orphanRemoval = true)
+    @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private UserPreference userPreference;
+
 
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)

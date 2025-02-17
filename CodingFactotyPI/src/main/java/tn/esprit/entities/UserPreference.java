@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 @Entity
@@ -23,5 +24,6 @@ public class UserPreference {
     private Boolean notificationEnabled;
 
     @OneToOne(mappedBy = "userPreference")
+    @JsonIgnore
     private User user;
 }

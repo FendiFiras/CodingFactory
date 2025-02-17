@@ -14,9 +14,9 @@ public class UserPreferenceController {
 
     private IUserPreferenceService userPreferenceService;
 
-    @PostMapping
-    public UserPreference addUserPreference(@RequestBody UserPreference userPreference) {
-        return userPreferenceService.addUserPreference(userPreference);
+    @PostMapping("/{userId}")
+    public UserPreference addUserPreference(@RequestBody UserPreference userPreference, @PathVariable Long userId) {
+        return userPreferenceService.addUserPreference(userPreference, userId);
     }
 
     @GetMapping
@@ -38,5 +38,4 @@ public class UserPreferenceController {
     public UserPreference retrieveUserPreference(@PathVariable Long id) {
         return userPreferenceService.retrieveUserPreference(id);
     }
-
 }

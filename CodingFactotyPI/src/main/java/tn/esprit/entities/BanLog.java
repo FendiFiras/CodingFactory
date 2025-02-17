@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import lombok.*;
@@ -22,6 +23,7 @@ public class BanLog {
     @Enumerated(EnumType.STRING)
     private Status status;
     @ManyToOne
+    @JsonIgnore
     private User user;
 
 

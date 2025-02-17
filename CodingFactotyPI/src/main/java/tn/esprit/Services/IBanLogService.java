@@ -6,6 +6,7 @@ import java.util.List;
 
 public interface IBanLogService {
     BanLog addBanLog(BanLog banLog);
+    BanLog addBanLog(Long userId, BanLog banLog); // Nouvelle méthode
     List<BanLog> getAllBanLogs();
     BanLog modifyBanLog(BanLog banLog);
     void deleteBanLog(Long id);

@@ -9,4 +9,5 @@ import java.util.List;
 @Repository
 public interface BanLogRepository extends JpaRepository<BanLog, Long> {
     List<BanLog> findByUser_IdUser(Long userId);
+
 }

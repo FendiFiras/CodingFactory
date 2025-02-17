@@ -14,10 +14,11 @@ public class BanLogController {
 
     private IBanLogService banLogService;
 
-    @PostMapping
-    public BanLog addBanLog(@RequestBody BanLog banLog) {
-        return banLogService.addBanLog(banLog);
+    @PostMapping("/{userId}")
+    public BanLog addBanLog(@PathVariable Long userId, @RequestBody BanLog banLog) {
+        return banLogService.addBanLog(userId, banLog);
     }
+
 
     @GetMapping
     public List<BanLog> getAllBanLogs() {
@@ -41,6 +42,7 @@ public class BanLogController {
 
     @GetMapping("/user/{userId}")
     public List<BanLog> findByUserId(@PathVariable Long userId) {
+        System.out.println("🔎 Recherche des bans pour l'utilisateur ID : " + userId);
         return banLogService.findByUserId(userId);
     }
 }

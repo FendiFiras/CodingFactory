@@ -3,6 +3,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -40,19 +41,18 @@ public class Event {
 
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
-    private Set<Planning> Plannings;
+    private List<Planning> Plannings;
 
-    @OneToMany(cascade= CascadeType.ALL, mappedBy="events")
-    private Set<Notification>notifications;
+    @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
+    private List<Notification>notifications;
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="Revent")
-    private Set<Registration>Registrations;
+    private List<Registration>Registrations;
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="FeedEvent")
-    private Set<FeedBackEvent>feedBackEvents;
+    private List<FeedBackEvent>feedBackEvents;
 
-
-    @ManyToOne
-    User user;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Payment> payemnts;
 
 }

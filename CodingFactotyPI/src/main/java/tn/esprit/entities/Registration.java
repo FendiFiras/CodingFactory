@@ -23,8 +23,13 @@ public class Registration {
 
     private LocalDateTime registrationDate;
 
-    private String status;
+    private Boolean confirmation;
     @ManyToOne
     Event Revent;
+
+    @ManyToOne
+    User user;
+
+
 
 }

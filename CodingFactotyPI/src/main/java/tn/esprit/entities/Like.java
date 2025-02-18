@@ -11,6 +11,7 @@ import lombok.Setter;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
+@Table(name="likeDislike")
 public class Like {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

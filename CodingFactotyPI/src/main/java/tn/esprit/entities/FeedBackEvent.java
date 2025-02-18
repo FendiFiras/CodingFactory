@@ -29,5 +29,9 @@ public class FeedBackEvent {
     @ManyToOne
     Event FeedEvent;
 
+    @ManyToOne
+    User user;
+
+
 
 }

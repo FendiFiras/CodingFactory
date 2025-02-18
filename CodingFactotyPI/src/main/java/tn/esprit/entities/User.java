@@ -101,10 +101,16 @@ public class User {
 
     @OneToMany(mappedBy = "user")
     private List<Application> applications;
-    @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
-    private Set<Event>events;
+
 
     @OneToMany(mappedBy = "user")
     private List<Reclamation> reclamations;
+
+
+    @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
+    private List<FeedBackEvent>feedBackEvents;
+    @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
+    private List<Registration>registrations;
+
 
 }

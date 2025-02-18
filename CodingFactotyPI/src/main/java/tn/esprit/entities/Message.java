@@ -5,7 +5,9 @@ import jakarta.persistence.*;
 import  lombok.*;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -32,5 +34,6 @@ public class Message {
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<Like> likes;
+
 
 }

@@ -1,105 +1,96 @@
-/*
 package tn.esprit.Services;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import tn.esprit.Repository.DiscussionRepository;
-import tn.esprit.Repository.MessageRepository;
-import tn.esprit.entities.Discussion;
 import tn.esprit.entities.Message;
 import tn.esprit.entities.User;
+import tn.esprit.entities.Discussion;
+import tn.esprit.Repository.MessageRepository;
+import tn.esprit.Repository.UserRepository;
+import tn.esprit.Repository.DiscussionRepository;
 
 import java.util.Date;
-import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-public class MessageService implements IMessageService {
+@AllArgsConstructor
+public class MessageService {
 
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
 
-    @Override
-    @Transactional
-    public Message addMessage(Message message, Long userId, Long discussionId) {
-        // Récupérer l'utilisateur et la discussion
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("Utilisateur introuvable !"));
+    public Message addMessageToDiscussionAndUser(Message message, Long userId, Long discussionId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Discussion> discussionOpt = discussionRepository.findById(discussionId);
 
-        Discussion discussion = discussionRepository.findById(discussionId)
-                .orElseThrow(() -> new RuntimeException("Discussion introuvable !"));
+        if (userOpt.isPresent() && discussionOpt.isPresent()) {
+            User user = userOpt.get();
+            Discussion discussion = discussionOpt.get();
 
-        // Initialiser le message
-        message.setMessageDate(new Date());
-        message.setNumberOfLikes(0L);
+            // Assigner la date de création du message
+            message.setMessageDate(new Date());
 
-        // Sauvegarder d'abord le message
-        Message savedMessage = messageRepository.save(message);
+            // Sauvegarder le message dans la table Message
+            message = messageRepository.save(message);
 
-        // Ajouter le message à la liste des messages de l'utilisateur et de la discussion
-        user.getMessages().add(savedMessage);
-        discussion.getMessages().add(savedMessage);
+            // Ajouter le message à l'utilisateur et à la discussion via les tables d'association
+            // Ajout dans user_message (relation entre user et message)
+            user.getMessages().add(message);
+            userRepository.save(user);
 
-        // Sauvegarder les relations
-        userRepository.save(user);
-        discussionRepository.save(discussion);
+            // Ajout dans discussion_message (relation entre discussion et message)
+            discussion.getMessages().add(message);
+            discussionRepository.save(discussion);
 
-        return savedMessage;
+            return message;
+        } else {
+            throw new IllegalArgumentException("User or Discussion not found");
+        }
     }
 
-
-
-    @Override
-    public Message getMessageById(Long message_id) {
-        return messageRepository.findById(message_id)
-                .orElseThrow(() -> new RuntimeException("Message avec ID " + message_id + " introuvable !"));
-    }
-
-
-
-
-
-    @Override
-    public List<Message> getAllMessages() {
-        return messageRepository.findAll();
-    }
-
-    @Override
-    public Message updateMessage(Long messageId, Message updatedMessage) {
-        Message existingMessage = getMessageById(messageId);
-
-        existingMessage.setDescription(updatedMessage.getDescription());
-        existingMessage.setImage(updatedMessage.getImage());
-
-        return messageRepository.save(existingMessage);
-    }
-
-    @Override
-    @Transactional
+  /*  @Override
     public void deleteMessage(Long messageId) {
-        Message message = getMessageById(messageId);
-
-        // Retirer le message des listes associées
-        List<User> users = userRepository.findAll();
-        for (User user : users) {
-            if (user.getMessages().remove(message)) {
-                userRepository.save(user);
-                break;
-            }
+        // Vérifier si le message existe
+        if (!messageRepository.existsById(messageId)) {
+            throw new IllegalArgumentException("Message not found with ID: " + messageId);
         }
 
-        List<Discussion> discussions = discussionRepository.findAll();
-        for (Discussion discussion : discussions) {
-            if (discussion.getMessages().remove(message)) {
-                discussionRepository.save(discussion);
-                break;
-            }
+        // Récupérer le message
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found with ID: " + messageId));
+
+        // Dissocier le message de l'utilisateur et de la discussion via les tables d'association
+        User user = message.getUser();
+        if (user != null) {
+            user.getMessages().remove(message); // Retirer le message de l'utilisateur
+            userRepository.save(user); // Sauvegarder les changements dans l'utilisateur
         }
 
-        messageRepository.delete(message);
+        Discussion discussion = message.getDiscussion();
+        if (discussion != null) {
+            discussion.getMessages().remove(message); // Retirer le message de la discussion
+            discussionRepository.save(discussion); // Sauvegarder les changements dans la discussion
+        }
+
+        // Supprimer le message
+        messageRepository.deleteById(messageId);
+    }
+
+   */
+
+
+    public Message updateMessage(Message updatedMessage) {
+        Optional<Message> existingMessageOpt = messageRepository.findById(updatedMessage.getMessage_id());
+        if (existingMessageOpt.isPresent()) {
+            Message existingMessage = existingMessageOpt.get();
+            existingMessage.setDescription(updatedMessage.getDescription());
+            existingMessage.setImage(updatedMessage.getImage());
+            existingMessage.setNumberOfLikes(updatedMessage.getNumberOfLikes());
+
+            return messageRepository.save(existingMessage);
+        } else {
+            throw new IllegalArgumentException("Message not found");
+        }
     }
 }
-
- */

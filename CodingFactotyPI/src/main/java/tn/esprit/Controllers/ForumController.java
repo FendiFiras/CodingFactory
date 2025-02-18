@@ -1,6 +1,6 @@
 package tn.esprit.Controllers;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.Forum;
@@ -9,37 +9,40 @@ import tn.esprit.Services.IForumService;
 import java.util.List;
 
 @RestController
-@RequestMapping("/forum")
-@CrossOrigin("*") // Permet d'éviter les problèmes CORS
+@RequiredArgsConstructor
 public class ForumController {
 
-    @Autowired
-    private IForumService forumService;
+    private final IForumService forumService;
 
-    @GetMapping("/all")
+    @PostMapping("/AddForum/{userId}")
+    public ResponseEntity<Forum> addForum(@RequestBody Forum forum, @PathVariable Long userId) {
+        return ResponseEntity.ok(forumService.addForum(forum, userId));
+    }
+
+    @GetMapping("/GetAllForums")
     public ResponseEntity<List<Forum>> getAllForums() {
         return ResponseEntity.ok(forumService.getAllForums());
     }
 
-    @GetMapping("/{id}")
+    @GetMapping("/GetForumBy/{id}")
     public ResponseEntity<Forum> getForumById(@PathVariable Long id) {
-        return ResponseEntity.ok(forumService.getForumById(id));
+        return ResponseEntity.ok(forumService.getOneById(id));
     }
 
-    @PostMapping("/create/{userId}")
-    public ResponseEntity<Forum> createForum(@PathVariable Long userId, @RequestBody Forum forum) {
-        return ResponseEntity.ok(forumService.createForum(userId, forum));
+    @PutMapping("/UpdateForum/{userId}")
+    public ResponseEntity<Forum> updateForum(@RequestBody Forum forum) {
+        return ResponseEntity.ok(forumService.updateForum(forum));
     }
 
-
-    @PutMapping("/update/{id}")
-    public ResponseEntity<Forum> updateForum(@PathVariable Long id, @RequestBody Forum forum) {
-        return ResponseEntity.ok(forumService.updateForum(id, forum));
+    @DeleteMapping("/delete/{forumId}")
+    public String deleteForum(@PathVariable Long forumId) {
+        try {
+            // Appeler la méthode du service pour supprimer le forum
+            forumService.deleteForum(forumId);
+            return "Forum deleted successfully.";
+        } catch (IllegalArgumentException e) {
+            return "Forum not found with ID: " + forumId;
+        }
     }
 
-    @DeleteMapping("/delete/{id}")
-    public ResponseEntity<String> deleteForum(@PathVariable Long id) {
-        forumService.deleteForum(id);
-        return ResponseEntity.ok("Forum deleted successfully");
-    }
 }

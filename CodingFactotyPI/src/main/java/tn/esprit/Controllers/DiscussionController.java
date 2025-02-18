@@ -1,4 +1,4 @@
-package tn.esprit.Controllers;
+/*package tn.esprit.Controllers;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -46,3 +46,5 @@ public class DiscussionController {
 
 
 }
+
+ */

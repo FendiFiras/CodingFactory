@@ -1,3 +1,4 @@
+/*
 package tn.esprit.Services;
 
 import tn.esprit.entities.Discussion;
@@ -13,3 +14,5 @@ public interface IDiscussionService {
     void deleteDiscussion(Long discussionId);
 
 }
+
+ */

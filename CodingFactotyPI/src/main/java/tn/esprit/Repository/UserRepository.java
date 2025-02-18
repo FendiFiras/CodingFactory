@@ -1,16 +1,15 @@
 package tn.esprit.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
-import org.springframework.stereotype.Repository;
-import tn.esprit.entities.Role;
+import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.repository.query.Param;
 import tn.esprit.entities.User;
 
-import java.util.List;
-import java.util.Optional;
+import java.util.List;  // Correction ici
 
-@Repository
 public interface UserRepository extends JpaRepository<User, Long> {
-    User findByEmail(String email); // Méthode personnalisée pour trouver un utilisateur par email
-    List<User> findByRole(Role role);
 
+    // Requête personnalisée pour récupérer les utilisateurs associés à un forum
+    @Query("SELECT u FROM User u JOIN u.forums f WHERE f.forum_id = :forumId")
+    List<User> findUsersByForumId(@Param("forumId") Long forumId);
 }

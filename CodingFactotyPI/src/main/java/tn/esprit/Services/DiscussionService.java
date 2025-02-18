@@ -1,10 +1,10 @@
+/*
 package tn.esprit.Services;
 
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.ForumRepository;
-import tn.esprit.Repository.UserRepository;
 import tn.esprit.entities.Discussion;
 import tn.esprit.Repository.DiscussionRepository;
 import tn.esprit.entities.Forum;
@@ -97,3 +97,5 @@ public class DiscussionService implements IDiscussionService {
 
 
 }
+
+ */

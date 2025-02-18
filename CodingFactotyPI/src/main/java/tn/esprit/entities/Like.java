@@ -19,6 +19,10 @@ public class Like {
 
     private boolean likedeslike;
 
+
+    @ManyToOne
+    private User user;
+
     @ManyToOne
     private Message message;
 

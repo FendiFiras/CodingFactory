@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -27,8 +29,11 @@ public class Forum {
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
-    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Discussion> discussions;
+
+    @ManyToMany
+    private Set<User> Users=new HashSet<>();
 
 
    /* @OneToMany(mappedBy = "forum", cascade = CascadeType.ALL, orphanRemoval = true)
@@ -39,4 +44,3 @@ public class Forum {
 
 
 }
-

@@ -6,6 +6,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -27,8 +28,11 @@ public class Discussion {
     @Temporal(TemporalType.TIMESTAMP)
     private Date publicationDate;
 
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages;
+
+
 
 
 

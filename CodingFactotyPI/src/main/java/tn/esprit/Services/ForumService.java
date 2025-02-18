@@ -1,71 +1,90 @@
 package tn.esprit.Services;
 
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import tn.esprit.Repository.UserRepository;
 import tn.esprit.entities.Forum;
-import tn.esprit.Repository.ForumRepository;
 import tn.esprit.entities.User;
+import tn.esprit.Repository.ForumRepository;
+import tn.esprit.Repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
 
 @Service
+@AllArgsConstructor
 public class ForumService implements IForumService {
 
-    @Autowired
-    private ForumRepository forumRepository;
+    private final ForumRepository forumRepository;
+    private final UserRepository userRepository;
 
-    @Autowired
-    private UserRepository userRepository;
+    @Override
+    public Forum addForum(Forum forum, Long idUser) {
+        Optional<User> userOpt = userRepository.findById(idUser);
+
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
+
+            forum.setCreationDate(new java.util.Date());
+            forum = forumRepository.save(forum); // Sauvegarder le forum d'abord pour lui donner un ID valide
+
+            user.getForums().add(forum); // Ajouter le forum à la liste des forums de l'utilisateur
+            userRepository.save(user);   // Sauvegarder l'utilisateur pour mettre à jour la table d'association
+
+            return forum;
+        } else {
+            throw new IllegalArgumentException("User not found with ID: " + idUser);
+        }
+    }
+
+
+    @Override
+    public void deleteForum(Long forumId) {
+        // Vérifier si le forum existe
+        if (!forumRepository.existsById(forumId)) {
+            throw new IllegalArgumentException("Forum not found with ID: " + forumId);
+        }
+
+        // Récupérer le forum
+        Forum forum = forumRepository.findById(forumId)
+                .orElseThrow(() -> new IllegalArgumentException("Forum not found with ID: " + forumId));
+
+        // Dissocier les utilisateurs de ce forum
+        List<User> usersInForum = userRepository.findUsersByForumId(forumId);  // Utilisation de la méthode custom pour récupérer les utilisateurs associés au forum
+        for (User user : usersInForum) {
+            user.getForums().remove(forum);  // Retirer ce forum de l'utilisateur
+            userRepository.save(user);  // Sauvegarder les changements dans l'utilisateur
+        }
+
+        // Supprimer le forum
+        forumRepository.deleteById(forumId);
+    }
+
+
+
+
+    @Override
+    public Forum updateForum(Forum forum) {
+        Optional<Forum> existingForumOpt = forumRepository.findById(forum.getForum_id());
+        if (existingForumOpt.isPresent()) {
+            Forum existingForum = existingForumOpt.get();
+            existingForum.setTitle(forum.getTitle());
+            existingForum.setDescription(forum.getDescription());
+            existingForum.setImage(forum.getImage());
+            return forumRepository.save(existingForum);
+        } else {
+            throw new IllegalArgumentException("Forum not found with ID: " + forum.getForum_id());
+        }
+    }
+
+    @Override
+    public Forum getOneById(Long id) {
+        return forumRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Forum not found with ID: " + id));
+    }
 
     @Override
     public List<Forum> getAllForums() {
         return forumRepository.findAll();
-    }
-
-    @Override
-    public Forum getForumById(Long id) {
-        return forumRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Forum not found with id: " + id));
-    }
-
-
-
-    @Override
-    public Forum createForum(Long userId, Forum forum) {
-        // Utilisation correcte de findById()
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        forum = forumRepository.save(forum); // Sauvegarde du forum
-
-        user.getForums().add(forum); // Associe le forum à l'utilisateur
-        userRepository.save(user); // Met à jour l'association dans user_forums
-
-        return forum;
-    }
-
-    @Override
-    public Forum updateForum(Long id, Forum forum) {
-        Optional<Forum> existingForum = forumRepository.findById(id);
-        if (existingForum.isPresent()) {
-            Forum updatedForum = existingForum.get();
-            updatedForum.setTitle(forum.getTitle());
-            updatedForum.setDescription(forum.getDescription());
-            updatedForum.setImage(forum.getImage());
-            return forumRepository.save(updatedForum);
-        } else {
-            throw new RuntimeException("Forum not found with id: " + id);
-        }
-    }
-
-    @Override
-    public void deleteForum(Long id) {
-        if (forumRepository.existsById(id)) {
-            forumRepository.deleteById(id);
-        } else {
-            throw new RuntimeException("Forum not found with id: " + id);
-        }
     }
 }

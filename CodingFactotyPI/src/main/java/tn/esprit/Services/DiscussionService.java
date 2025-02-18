@@ -1,101 +1,84 @@
-/*
 package tn.esprit.Services;
 
-import jakarta.transaction.Transactional;
-import lombok.RequiredArgsConstructor;
+import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-import tn.esprit.Repository.ForumRepository;
 import tn.esprit.entities.Discussion;
-import tn.esprit.Repository.DiscussionRepository;
-import tn.esprit.entities.Forum;
 import tn.esprit.entities.User;
+import tn.esprit.Repository.DiscussionRepository;
+import tn.esprit.Repository.UserRepository;
 
-import java.util.Date;
 import java.util.List;
+import java.util.Optional;
 
 @Service
-@RequiredArgsConstructor
-
+@AllArgsConstructor
 public class DiscussionService implements IDiscussionService {
 
     private final DiscussionRepository discussionRepository;
-    private final ForumRepository forumRepository;
-    private final UserRepository userRepository; // Ajout du repository U
+    private final UserRepository userRepository;
 
     @Override
-    public Discussion addDiscussion(Discussion discussion, Long forumId,Long idUser) {
-        // Récupérer le forum
-        Forum forum = forumRepository.findById(forumId)
-                .orElseThrow(() -> new RuntimeException("Forum avec ID " + forumId + " non trouvé !"));
+    public Discussion addDiscussion(Discussion discussion, Long userId) {
+        Optional<User> userOpt = userRepository.findById(userId);
 
-        // Vérifier si l'utilisateur existe
-        User user = userRepository.findById(idUser)
-                .orElseThrow(() -> new RuntimeException("Utilisateur avec ID " + idUser + " non trouvé !"));
+        if (userOpt.isPresent()) {
+            User user = userOpt.get();
 
-        // Initialiser les valeurs de la discussion
-        discussion.setNumberOfLikes(0L);
-        discussion.setPublicationDate(new Date());
+            discussion.setPublicationDate(new java.util.Date());
+            discussion = discussionRepository.save(discussion); // Sauvegarder la discussion d'abord pour lui donner un ID valide
 
-        // Ajouter la discussion à la liste des discussions du forum
-        forum.getDiscussions().add(discussion);
+            user.getDiscussions().add(discussion); // Ajouter la discussion à la liste des discussions de l'utilisateur
+            userRepository.save(user); // Sauvegarder l'utilisateur pour mettre à jour la table d'association
 
-        // Sauvegarder le forum (cela sauvegarde aussi la discussion grâce à la relation bidirectionnelle)
-        forumRepository.save(forum);
-
-        // Ajouter la discussion à la liste des discussions du User
-        user.getDiscussions().add(discussion);
-        userRepository.save(user); // Sauvegarder l'utilisateur
-
-
-        return discussion;
+            return discussion;
+        } else {
+            throw new IllegalArgumentException("User not found with ID: " + userId);
+        }
     }
 
+    @Override
+    public void deleteDiscussion(Long discussionId) {
+        // Vérifier si la discussion existe
+        if (!discussionRepository.existsById(discussionId)) {
+            throw new IllegalArgumentException("Discussion not found with ID: " + discussionId);
+        }
 
+        // Récupérer la discussion
+        Discussion discussion = discussionRepository.findById(discussionId)
+                .orElseThrow(() -> new IllegalArgumentException("Discussion not found with ID: " + discussionId));
+
+        // Dissocier les utilisateurs de cette discussion
+        List<User> usersInDiscussion = userRepository.findUsersByDiscussionId(discussionId); // Méthode custom pour récupérer les utilisateurs associés à la discussion
+        for (User user : usersInDiscussion) {
+            user.getDiscussions().remove(discussion); // Retirer cette discussion de l'utilisateur
+            userRepository.save(user); // Sauvegarder les changements dans l'utilisateur
+        }
+
+        // Supprimer la discussion
+        discussionRepository.deleteById(discussionId);
+    }
 
     @Override
-    public Discussion getDiscussionById(Long discussionId) {
-        return discussionRepository.findById(discussionId)
-                .orElseThrow(() -> new RuntimeException("Discussion avec ID " + discussionId + " non trouvée !"));
+    public Discussion updateDiscussion(Discussion discussion) {
+        Optional<Discussion> existingDiscussionOpt = discussionRepository.findById(discussion.getDiscussion_id());
+        if (existingDiscussionOpt.isPresent()) {
+            Discussion existingDiscussion = existingDiscussionOpt.get();
+            existingDiscussion.setTitle(discussion.getTitle());
+            existingDiscussion.setDescription(discussion.getDescription());
+            return discussionRepository.save(existingDiscussion);
+        } else {
+            throw new IllegalArgumentException("Discussion not found with ID: " + discussion.getDiscussion_id());
+        }
+    }
+
+    @Override
+    public Discussion getOneById(Long id) {
+        return discussionRepository.findById(id)
+                .orElseThrow(() -> new IllegalArgumentException("Discussion not found with ID: " + id));
     }
 
     @Override
     public List<Discussion> getAllDiscussions() {
         return discussionRepository.findAll();
     }
-
-    @Override
-    public Discussion updateDiscussion(Long discussionId, Discussion updatedDiscussion) {
-        Discussion existingDiscussion = getDiscussionById(discussionId);
-
-        existingDiscussion.setTitle(updatedDiscussion.getTitle());
-        existingDiscussion.setDescription(updatedDiscussion.getDescription());
-        existingDiscussion.setNumberOfLikes(updatedDiscussion.getNumberOfLikes());
-
-        return discussionRepository.save(existingDiscussion);
-    }
-
-    @Override
-    @Transactional
-    public void deleteDiscussion(Long discussionId) {
-        Discussion discussion = getDiscussionById(discussionId);
-
-        // Récupérer tous les forums et retirer la discussion
-        List<Forum> forums = forumRepository.findAll();
-        for (Forum forum : forums) {
-            if (forum.getDiscussions().remove(discussion)) {
-                forumRepository.save(forum); // Mettre à jour le forum
-                break; // La discussion n'existe que dans un forum, inutile de continuer
-            }
-        }
-
-        discussionRepository.delete(discussion);
-    }
-
-
-
-
-
-
 }
-
- */

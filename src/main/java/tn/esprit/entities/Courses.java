@@ -27,6 +27,7 @@ public class Courses {
 
     @Enumerated(EnumType.STRING)
     private CourseDifficulty difficulty;
+    @JsonIgnore
 
     @ManyToOne
     Training training;

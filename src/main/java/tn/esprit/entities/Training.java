@@ -38,6 +38,8 @@ public class Training {
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="training")
     private Set<Courses> coursess;
+    @JsonIgnore  // ✅ Ajoutez cela sur les relations
+
     @OneToOne
     private Quiz Quiz;
 

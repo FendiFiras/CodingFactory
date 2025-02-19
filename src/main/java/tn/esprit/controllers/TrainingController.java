@@ -18,7 +18,7 @@ public class TrainingController {
     private IServiceTraining serviceTraining; // Injection automatique du service
 
     @PostMapping("/addtraining/{userId}")
-    public Training addTraining(@RequestBody Training training, @RequestParam Long userId) {
+    public Training addTraining(@RequestBody Training training, @PathVariable Long userId) {
 
 
        return  serviceTraining.addTraining(training, userId); // Enregistrement de la formation
@@ -45,7 +45,7 @@ public class TrainingController {
     public Training getTrainingById(@PathVariable Long idt) {
         return serviceTraining.getOneById(idt);
     }
-    @GetMapping("/trainings")
+    @GetMapping("/Get_alltrainings")
     public List<Training> getAllTrainings() {
         return serviceTraining.getAllTrainings();
     }

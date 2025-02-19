@@ -19,7 +19,7 @@ public class SessionController {
 
 
     @PostMapping("/add_Session")
-    public Session addSession(@RequestBody Session session, @RequestParam Long courseId) {
+    public Session addSession(@RequestBody Session session, @PathVariable Long courseId) {
         return serviceSession.addSession(session, courseId);
     }
 

@@ -8,6 +8,7 @@ import tn.esprit.Services.IUserService;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/users")
 @AllArgsConstructor
 public class UserController {

@@ -8,6 +8,7 @@ import tn.esprit.Services.IBanLogService;
 import java.util.List;
 
 @RestController
+@CrossOrigin(origins = "http://localhost:4200")
 @RequestMapping("/ban-logs")
 @AllArgsConstructor
 public class BanLogController {
@@ -24,11 +25,12 @@ public class BanLogController {
     public List<BanLog> getAllBanLogs() {
         return banLogService.getAllBanLogs();
     }
-
-    @PutMapping
-    public BanLog modifyBanLog(@RequestBody BanLog banLog) {
-        return banLogService.modifyBanLog(banLog);
+    @PutMapping("/{id}")
+    public BanLog modifyBanLog(@PathVariable Long id, @RequestBody BanLog banLog) {
+        System.out.println("Modification du BanLog avec ID: " + id); // Debug
+        return banLogService.modifyBanLog(id, banLog);
     }
+
 
     @DeleteMapping("/{id}")
     public void deleteBanLog(@PathVariable Long id) {
@@ -45,4 +47,5 @@ public class BanLogController {
         System.out.println("🔎 Recherche des bans pour l'utilisateur ID : " + userId);
         return banLogService.findByUserId(userId);
     }
+
 }

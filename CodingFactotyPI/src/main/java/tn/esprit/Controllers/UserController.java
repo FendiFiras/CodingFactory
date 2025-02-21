@@ -25,9 +25,9 @@ public class UserController {
         return userService.getAllUsers();
     }
 
-    @PutMapping
-    public User modifyUser(@RequestBody User user) {
-        return userService.modifyUser(user);
+    @PutMapping("/{idUser}")
+    public User modifyUser(@PathVariable Long idUser, @RequestBody User user) {
+        return userService.modifyUser(idUser, user);
     }
 
     @DeleteMapping("/{id}")

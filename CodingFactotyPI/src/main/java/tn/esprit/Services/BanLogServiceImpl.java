@@ -30,15 +30,19 @@ public class BanLogServiceImpl implements IBanLogService {
         banLog.setUser(user);
         return banLogRepository.save(banLog);
     }
-    @Override
-    public List<BanLog> getAllBanLogs() {
-        return banLogRepository.findAll();
-    }
+
 
     @Override
-    public BanLog modifyBanLog(BanLog banLog) {
-        return banLogRepository.save(banLog);
+    public BanLog modifyBanLog(Long id, BanLog updatedBanLog) {
+        return banLogRepository.findById(id)
+                .map(existingBanLog -> {
+                    existingBanLog.setBanDuration(updatedBanLog.getBanDuration());
+                    existingBanLog.setBanReason(updatedBanLog.getBanReason());
+                    existingBanLog.setStatus(updatedBanLog.getStatus());
+                    return banLogRepository.save(existingBanLog);
+                }).orElseThrow(() -> new RuntimeException("BanLog not found with id " + id));
     }
+
 
     @Override
     public void deleteBanLog(Long id) {
@@ -58,4 +62,11 @@ public class BanLogServiceImpl implements IBanLogService {
         }
         return banLogs;
     }
+
+    public List<BanLog> getAllBanLogs() {
+        return banLogRepository.findAllWithUser();
+    }
+
+
+
 }

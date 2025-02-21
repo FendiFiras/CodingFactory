@@ -25,7 +25,7 @@ public class UserServiceImpl implements IUserService {
     }
 
     @Override
-    public User modifyUser(User user) {
+    public User modifyUser(Long idUser, User user) {
         return userRepository.save(user);
     }
 

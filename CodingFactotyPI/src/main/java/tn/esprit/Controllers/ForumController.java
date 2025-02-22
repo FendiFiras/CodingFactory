@@ -1,13 +1,15 @@
 package tn.esprit.Controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.Forum;
 import tn.esprit.Services.IForumService;
 
+import java.util.Collections;
 import java.util.List;
-
+@CrossOrigin(origins = "*")
 @RestController
 @RequiredArgsConstructor
 public class ForumController {
@@ -19,10 +21,12 @@ public class ForumController {
         return ResponseEntity.ok(forumService.addForum(forum, userId));
     }
 
+    @CrossOrigin(origins = "*")
     @GetMapping("/GetAllForums")
     public ResponseEntity<List<Forum>> getAllForums() {
         return ResponseEntity.ok(forumService.getAllForums());
     }
+
 
     @GetMapping("/GetForumBy/{id}")
     public ResponseEntity<Forum> getForumById(@PathVariable Long id) {

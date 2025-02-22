@@ -1,6 +1,8 @@
 package tn.esprit.Controllers;
 
 import lombok.RequiredArgsConstructor;
+import java.util.List;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.Services.MessageService;
@@ -21,18 +23,33 @@ public class MessageController {
         return ResponseEntity.ok(savedMessage);
     }
 
-    /*
-    @DeleteMapping("/delete/{messageId}")
-    public ResponseEntity<String> deleteMessage(@PathVariable Long messageId) {
-        messageService.deleteMessage(messageId);
-        return ResponseEntity.ok("Message deleted successfully");
-    }
-
-     */
 
     @PutMapping("/update")
     public ResponseEntity<Message> updateMessage(@RequestBody Message message) {
         Message updatedMessage = messageService.updateMessage(message);
         return ResponseEntity.ok(updatedMessage);
     }
+
+
+    @DeleteMapping("/delete/{messageId}")
+    public ResponseEntity<String> deleteMessage(@PathVariable Long messageId) {
+        try {
+            messageService.deleteMessage(messageId);
+            return ResponseEntity.ok("Message deleted successfully.");
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
+        }
+    }
+
+
+    @GetMapping("/{message_id}")
+    public ResponseEntity<Message> getMessageById(@PathVariable Long message_id) {
+        return ResponseEntity.ok(messageService.getMessageById(message_id));
+    }
+
+    @GetMapping("/all")
+    public ResponseEntity<List<Message>> getAllMessages() {
+        return ResponseEntity.ok(messageService.getAllMessages());
+    }
+
 }

@@ -1,4 +1,4 @@
-/*
+
 package tn.esprit.Repository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -12,4 +12,4 @@ public interface LikeRepository extends JpaRepository<Like, Long> {
     Optional<Like> findByUserAndMessage(User user, Message message); // Vérifier si un utilisateur a déjà liké un message
 }
 
- */
+

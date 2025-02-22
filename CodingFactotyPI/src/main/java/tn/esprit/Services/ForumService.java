@@ -82,9 +82,10 @@ public class ForumService implements IForumService {
         return forumRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Forum not found with ID: " + id));
     }
-
     @Override
     public List<Forum> getAllForums() {
         return forumRepository.findAll();
     }
+
+
 }

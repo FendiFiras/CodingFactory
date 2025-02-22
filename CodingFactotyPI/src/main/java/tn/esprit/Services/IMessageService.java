@@ -5,8 +5,9 @@ import tn.esprit.entities.Message;
 import java.util.List;
 
 public interface IMessageService {
-    Message addMessage(Message message, Long discussionId, Long userId);
+    Message addMessageToDiscussionAndUser(Message message, Long userId, Long discussionId);
     void deleteMessage(Long messageId);
     Message updateMessage(Message message);
+    Message getMessageById(Long messageId);
     List<Message> getAllMessages();
 }

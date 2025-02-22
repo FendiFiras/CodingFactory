@@ -1,16 +1,16 @@
 package tn.esprit.Services;
 
+import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.Repository.*;
 import tn.esprit.entities.Message;
 import tn.esprit.entities.User;
 import tn.esprit.entities.Discussion;
-import tn.esprit.Repository.MessageRepository;
-import tn.esprit.Repository.UserRepository;
-import tn.esprit.Repository.DiscussionRepository;
 
 import java.util.Date;
 import java.util.Optional;
+import java.util.List;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +19,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
+
 
     public Message addMessageToDiscussionAndUser(Message message, Long userId, Long discussionId) {
         Optional<User> userOpt = userRepository.findById(userId);
@@ -49,35 +50,6 @@ public class MessageService {
         }
     }
 
-  /*  @Override
-    public void deleteMessage(Long messageId) {
-        // Vérifier si le message existe
-        if (!messageRepository.existsById(messageId)) {
-            throw new IllegalArgumentException("Message not found with ID: " + messageId);
-        }
-
-        // Récupérer le message
-        Message message = messageRepository.findById(messageId)
-                .orElseThrow(() -> new IllegalArgumentException("Message not found with ID: " + messageId));
-
-        // Dissocier le message de l'utilisateur et de la discussion via les tables d'association
-        User user = message.getUser();
-        if (user != null) {
-            user.getMessages().remove(message); // Retirer le message de l'utilisateur
-            userRepository.save(user); // Sauvegarder les changements dans l'utilisateur
-        }
-
-        Discussion discussion = message.getDiscussion();
-        if (discussion != null) {
-            discussion.getMessages().remove(message); // Retirer le message de la discussion
-            discussionRepository.save(discussion); // Sauvegarder les changements dans la discussion
-        }
-
-        // Supprimer le message
-        messageRepository.deleteById(messageId);
-    }
-
-   */
 
 
     public Message updateMessage(Message updatedMessage) {
@@ -93,4 +65,39 @@ public class MessageService {
             throw new IllegalArgumentException("Message not found");
         }
     }
+
+
+
+    @Transactional
+    public void deleteMessage(Long messageId) {
+        Message message = messageRepository.findById(messageId)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found"));
+
+        // Désaffecter le message de la discussion
+        Discussion discussion = discussionRepository.findByMessagesContaining(message);
+        if (discussion != null) {
+            discussion.getMessages().remove(message);
+            discussionRepository.save(discussion);
+        }
+
+        // Désaffecter le message du user
+        User user = userRepository.findByMessagesContaining(message);
+        if (user != null) {
+            user.getMessages().remove(message);
+            userRepository.save(user);
+        }
+
+        // Supprimer le message de la base de données
+        messageRepository.delete(message);
+    }
+
+    public Message getMessageById(Long message_id) {
+        return messageRepository.findById(message_id)
+                .orElseThrow(() -> new IllegalArgumentException("Message not found"));
+    }
+
+    public List<Message> getAllMessages() {
+        return messageRepository.findAll();
+    }
+
 }

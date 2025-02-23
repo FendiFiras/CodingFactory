@@ -13,4 +13,6 @@ public interface IServiceTraining {
      List<Training> getAllTrainings();
 
     void affecterQuizTraining(Long trainingId, Long quizId);
-    }
+    List<Training> getTrainingsByUser(Long userId);
+
+}

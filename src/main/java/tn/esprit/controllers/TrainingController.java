@@ -54,5 +54,9 @@ public class TrainingController {
         serviceTraining.affecterQuizTraining(trainingId, quizId);
     }
 
-
+    @GetMapping("/user/{userId}")
+    public ResponseEntity<List<Training>> getTrainingsByUser(@PathVariable Long userId) {
+        List<Training> trainings = serviceTraining.getTrainingsByUser(userId);
+        return ResponseEntity.ok(trainings);
+    }
 }

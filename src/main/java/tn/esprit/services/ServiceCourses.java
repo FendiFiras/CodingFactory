@@ -38,6 +38,7 @@ public class ServiceCourses implements IServiceCourses {
         existingCourse.setCourseName(course.getCourseName());
         existingCourse.setCourseDescription(course.getCourseDescription());
         existingCourse.setDifficulty(course.getDifficulty());
+        existingCourse.setFileUrls(course.getFileUrls());
         existingCourse.setTraining(course.getTraining()); // Associe une nouvelle formation si nécessaire
 
         // Sauvegarde du cours mis à jour

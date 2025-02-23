@@ -109,5 +109,9 @@ public class ServiceTraining  implements IServiceTraining {
         // Sauvegarder le training mis à jour
         trainingRepo.save(training);
     }
+    // ✅ Récupérer les formations d'un utilisateur spécifique
+    public List<Training> getTrainingsByUser(Long userId) {
+        return trainingRepo.findTrainingsByUserId(userId);
+    }
 
 }

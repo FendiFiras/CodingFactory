@@ -16,8 +16,8 @@ public class CoursesController {
 
 @Autowired
 private ServiceCourses serviceCourses;
-    @PostMapping("/add_courses")
-    public Courses addCourse(@RequestBody Courses course, @RequestParam Long trainingId) {
+    @PostMapping("/add_courses/{trainingId}")
+    public Courses addCourse(@RequestBody Courses course, @PathVariable Long trainingId) {
         return serviceCourses.addCourse(course, trainingId);
     }
     @PutMapping("/updateCourse")

@@ -3,11 +3,13 @@ package tn.esprit.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.entities.QuizAnswer;
 import tn.esprit.entities.Session;
 import tn.esprit.services.IServiceSession;
 import tn.esprit.services.IServiceTraining;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("/Session")
@@ -18,7 +20,7 @@ public class SessionController {
     private IServiceSession serviceSession ; // Injection automatique du service
 
 
-    @PostMapping("/add_Session")
+    @PostMapping("/add_Session/{courseId}")
     public Session addSession(@RequestBody Session session, @PathVariable Long courseId) {
         return serviceSession.addSession(session, courseId);
     }
@@ -41,7 +43,5 @@ public class SessionController {
     public List<Session> getAll() {
         return serviceSession.getAll();
     }
-
-
 
 }

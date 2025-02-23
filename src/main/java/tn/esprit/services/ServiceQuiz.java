@@ -10,6 +10,7 @@ import tn.esprit.repositories.QuizQuestionRepo;
 import tn.esprit.repositories.QuizRepo;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 @Service
@@ -21,6 +22,10 @@ public class ServiceQuiz implements IServiceQuiz {
     QuizQuestionRepo quizQuestionRepo;
     QuizAnswerRepo quizAnswerRepo;
 
+
+    public List<QuizQuestion> getAllQuestion() {
+        return quizQuestionRepo.findAll();
+    }
     public Quiz addQuiz(Quiz quiz) {
         return quizRepo.save(quiz);
     }
@@ -119,5 +124,33 @@ public class ServiceQuiz implements IServiceQuiz {
         // Supprimer la question après dissociation
         quizQuestionRepo.delete(quizQuestion);
     }
+    public Set<QuizQuestion> getQuestionsByQuiz(Long quizId) {
+        Optional<Quiz> quiz = quizRepo.findById(quizId);
+        if (quiz.isPresent()) {
+            return quiz.get().getQuizQuestions(); // ✅ Récupération des questions du quiz
+        } else {
+            throw new RuntimeException("❌ Quiz non trouvé avec l'ID : " + quizId);
+        }
+    }
+    public Set<QuizAnswer> getAnswersByQuestionId(Long questionId) {
+        Optional<QuizQuestion> question = quizQuestionRepo.findById(questionId);
+
+        if (question.isEmpty()) {
+            throw new RuntimeException("❌ Question non trouvée avec l'ID : " + questionId);
+        }
+
+        return question.get().getQuizAnswers();
+    }
+    public QuizQuestion addAnswerToQuestion(Long questionId, QuizAnswer newAnswer) {
+        QuizQuestion question = quizQuestionRepo.findById(questionId)
+                .orElseThrow(() -> new RuntimeException("❌ Question introuvable avec ID : " + questionId));
+
+        // ✅ Ajouter la réponse à la liste des réponses de la question
+        question.getQuizAnswers().add(newAnswer);
+
+        // ✅ Sauvegarder la question (et automatiquement les réponses car `CascadeType.ALL` est activé)
+        return quizQuestionRepo.save(question);
+    }
+
 
 }

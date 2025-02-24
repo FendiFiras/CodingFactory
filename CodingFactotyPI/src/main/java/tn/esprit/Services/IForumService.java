@@ -10,4 +10,5 @@ public interface IForumService {
     Forum updateForum(Forum forum);
     Forum getOneById(Long id);
     List<Forum> getAllForums();
+    Forum saveForum(Forum forum);  // Declare the method to save a forum
 }

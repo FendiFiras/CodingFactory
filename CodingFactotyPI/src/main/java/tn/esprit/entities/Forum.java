@@ -36,11 +36,5 @@ public class Forum {
     private Set<User> Users=new HashSet<>();
 
 
-   /* @OneToMany(mappedBy = "forum", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Discussion> discussions;
-
-
-    */
-
 
 }

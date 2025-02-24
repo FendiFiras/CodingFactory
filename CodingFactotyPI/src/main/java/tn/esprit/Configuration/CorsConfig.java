@@ -1,6 +1,5 @@
 package tn.esprit.Configuration;
-/*
-import org.springframework.context.annotation.Bean;
+
 import org.springframework.context.annotation.Configuration;
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
@@ -10,11 +9,11 @@ public class CorsConfig implements WebMvcConfigurer {
 
     @Override
     public void addCorsMappings(CorsRegistry registry) {
-        registry.addMapping("/**")  // Autorise toutes les routes
-                .allowedOrigins("http://localhost:4200")  // Autorise les requêtes depuis Angular
-                .allowedMethods("GET", "POST", "PUT", "DELETE")  // Méthodes autorisées
-                .allowedHeaders("*")  // Autorise tous les en-têtes
-                .allowCredentials(true);  // Si vous avez besoin de partager les cookies
+        registry.addMapping("/api/**") // Allow all endpoints under /api
+                .allowedOrigins("http://localhost:4200") // Allow requests from Angular app
+                .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Allow specific HTTP methods
+                .allowedHeaders("*") // Allow all headers
+                .allowCredentials(true) // Allow cookies and credentials
+                .maxAge(3600); // Cache preflight response for 1 hour
     }
 }
-*/

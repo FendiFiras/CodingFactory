@@ -9,7 +9,6 @@ import tn.esprit.Repository.UserRepository;
 
 import java.util.List;
 import java.util.Optional;
-import java.util.Set;
 
 @Service
 @AllArgsConstructor
@@ -19,6 +18,11 @@ public class ForumService implements IForumService {
     private final UserRepository userRepository;
 
     @Override
+    public Forum saveForum(Forum forum) {
+        return forumRepository.save(forum);  // Save the forum to the database
+    }
+
+    @Override
     public Forum addForum(Forum forum, Long idUser) {
         Optional<User> userOpt = userRepository.findById(idUser);
 
@@ -26,10 +30,10 @@ public class ForumService implements IForumService {
             User user = userOpt.get();
 
             forum.setCreationDate(new java.util.Date());
-            forum = forumRepository.save(forum); // Sauvegarder le forum d'abord pour lui donner un ID valide
+            forum = forumRepository.save(forum); // Save the forum first to give it a valid ID
 
-            user.getForums().add(forum); // Ajouter le forum à la liste des forums de l'utilisateur
-            userRepository.save(user);   // Sauvegarder l'utilisateur pour mettre à jour la table d'association
+            user.getForums().add(forum); // Add the forum to the user's list of forums
+            userRepository.save(user);   // Save the user to update the association table
 
             return forum;
         } else {
@@ -37,31 +41,27 @@ public class ForumService implements IForumService {
         }
     }
 
-
     @Override
     public void deleteForum(Long forumId) {
-        // Vérifier si le forum existe
+        // Check if the forum exists
         if (!forumRepository.existsById(forumId)) {
             throw new IllegalArgumentException("Forum not found with ID: " + forumId);
         }
 
-        // Récupérer le forum
+        // Retrieve the forum
         Forum forum = forumRepository.findById(forumId)
                 .orElseThrow(() -> new IllegalArgumentException("Forum not found with ID: " + forumId));
 
-        // Dissocier les utilisateurs de ce forum
-        List<User> usersInForum = userRepository.findUsersByForumId(forumId);  // Utilisation de la méthode custom pour récupérer les utilisateurs associés au forum
+        // Dissociate users from this forum
+        List<User> usersInForum = userRepository.findUsersByForumId(forumId);  // Use custom method to retrieve users associated with the forum
         for (User user : usersInForum) {
-            user.getForums().remove(forum);  // Retirer ce forum de l'utilisateur
-            userRepository.save(user);  // Sauvegarder les changements dans l'utilisateur
+            user.getForums().remove(forum);  // Remove this forum from the user
+            userRepository.save(user);  // Save changes to the user
         }
 
-        // Supprimer le forum
+        // Delete the forum
         forumRepository.deleteById(forumId);
     }
-
-
-
 
     @Override
     public Forum updateForum(Forum forum) {
@@ -82,10 +82,9 @@ public class ForumService implements IForumService {
         return forumRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Forum not found with ID: " + id));
     }
+
     @Override
     public List<Forum> getAllForums() {
         return forumRepository.findAll();
     }
-
-
 }

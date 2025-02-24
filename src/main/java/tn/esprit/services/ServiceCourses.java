@@ -2,11 +2,16 @@ package tn.esprit.services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.entities.Courses;
 import tn.esprit.entities.Training;
 import tn.esprit.repositories.CoursesRepo;
 import tn.esprit.repositories.TrainingRepository;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.List;
 
 @Service
@@ -63,4 +68,32 @@ public class ServiceCourses implements IServiceCourses {
     public List<Courses> getAllCourses() {
         return coursesRepo.findAll();
     }
+
+
+    public Courses saveFile(Long courseId, MultipartFile file) throws IOException {
+        Courses course = coursesRepo.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (file != null && !file.isEmpty()) {
+            // 🔥 Nom unique pour éviter les conflits
+            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
+            Path filePath = Paths.get("C:/uploads/").resolve(fileName);
+
+            // ✅ Créer le dossier si nécessaire
+            Files.createDirectories(filePath.getParent());
+
+            // 📂 Sauvegarde du fichier
+            Files.copy(file.getInputStream(), filePath);
+
+            // 🔗 Stocke uniquement l’URL d’accès au fichier dans la base de données
+            course.setFileUrls("http://localhost:8089/Courses/" + fileName);
+        }
+
+        return coursesRepo.save(course);
+    }
+    public List<Courses> getCoursesByTraining(Long trainingId) {
+        return coursesRepo.findCoursesByTrainingId(trainingId);
+    }
+
+
 }

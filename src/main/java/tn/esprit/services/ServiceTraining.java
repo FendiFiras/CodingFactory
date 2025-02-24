@@ -114,4 +114,9 @@ public class ServiceTraining  implements IServiceTraining {
         return trainingRepo.findTrainingsByUserId(userId);
     }
 
+
+
+
+
+
 }

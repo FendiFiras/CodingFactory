@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -23,10 +24,16 @@ public class Quiz {
     private int timeLimit;
     private int maxGrade;
 
+
+    @JsonIgnore
     @OneToOne(mappedBy = "Quiz")
     private Training training;
     @OneToMany(cascade = CascadeType.ALL)
+    @JsonIgnore
+
     private Set<QuizQuestion> QuizQuestions;
+    @JsonIgnore
+
     @OneToMany(cascade = CascadeType.ALL, mappedBy = "quiz")
     private Set<Response> studentResponses;
 

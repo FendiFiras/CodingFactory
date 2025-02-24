@@ -1,31 +1,38 @@
 package tn.esprit.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
 import tn.esprit.entities.Quiz;
 import tn.esprit.entities.QuizAnswer;
 import tn.esprit.entities.QuizQuestion;
+import tn.esprit.entities.Response;
 import tn.esprit.repositories.QuizAnswerRepo;
 import tn.esprit.repositories.QuizQuestionRepo;
 import tn.esprit.repositories.QuizRepo;
+import tn.esprit.repositories.ResponseREpo;
 
-import java.util.List;
-import java.util.Optional;
-import java.util.Set;
+import java.util.*;
 
 @Service
 @AllArgsConstructor
 public class ServiceQuiz implements IServiceQuiz {
 
 
-    QuizRepo  quizRepo;
+    QuizRepo quizRepo;
     QuizQuestionRepo quizQuestionRepo;
     QuizAnswerRepo quizAnswerRepo;
+    ResponseREpo responserepo;
 
 
     public List<QuizQuestion> getAllQuestion() {
+
         return quizQuestionRepo.findAll();
     }
+
     public Quiz addQuiz(Quiz quiz) {
         return quizRepo.save(quiz);
     }
@@ -61,6 +68,7 @@ public class ServiceQuiz implements IServiceQuiz {
         // Sauvegarder les changements dans la base de données
         return quizRepo.save(existingQuiz);
     }
+
     public QuizQuestion addQuestionWithAnswers(Long quizId, QuizQuestion question, Set<QuizAnswer> answers) {
         // Récupérer le quiz
         Quiz quiz = quizRepo.findById(quizId)
@@ -78,6 +86,7 @@ public class ServiceQuiz implements IServiceQuiz {
 
         return question;
     }
+
     public QuizQuestion updateQuestion(QuizQuestion updatedQuestion) {
         QuizQuestion existingQuestion = quizQuestionRepo.findById(updatedQuestion.getIdQuizQ())
                 .orElseThrow(() -> new IllegalArgumentException("Question introuvable avec ID: " + updatedQuestion.getIdQuizQ()));
@@ -124,6 +133,7 @@ public class ServiceQuiz implements IServiceQuiz {
         // Supprimer la question après dissociation
         quizQuestionRepo.delete(quizQuestion);
     }
+
     public Set<QuizQuestion> getQuestionsByQuiz(Long quizId) {
         Optional<Quiz> quiz = quizRepo.findById(quizId);
         if (quiz.isPresent()) {
@@ -132,6 +142,7 @@ public class ServiceQuiz implements IServiceQuiz {
             throw new RuntimeException("❌ Quiz non trouvé avec l'ID : " + quizId);
         }
     }
+
     public Set<QuizAnswer> getAnswersByQuestionId(Long questionId) {
         Optional<QuizQuestion> question = quizQuestionRepo.findById(questionId);
 
@@ -141,6 +152,7 @@ public class ServiceQuiz implements IServiceQuiz {
 
         return question.get().getQuizAnswers();
     }
+
     public QuizQuestion addAnswerToQuestion(Long questionId, QuizAnswer newAnswer) {
         QuizQuestion question = quizQuestionRepo.findById(questionId)
                 .orElseThrow(() -> new RuntimeException("❌ Question introuvable avec ID : " + questionId));
@@ -152,5 +164,95 @@ public class ServiceQuiz implements IServiceQuiz {
         return quizQuestionRepo.save(question);
     }
 
+    public List<Quiz> getQuizzesByTraining(Long trainingId) {
+        return quizRepo.findQuizzesByTraining(trainingId);
+    }
 
+    public Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, List<Long> selectedAnswers) {
+        Quiz quiz = quizRepo.findById(quizId)
+                .orElseThrow(() -> new RuntimeException("❌ Quiz non trouvé !"));
+
+        int totalScore = 0;
+
+        for (Long answerId : selectedAnswers) {
+            QuizAnswer answer = quizAnswerRepo.findById(answerId)
+                    .orElseThrow(() -> new RuntimeException("❌ Réponse ID " + answerId + " non trouvée !"));
+
+            boolean isCorrect = answer.isCorrect();
+
+            QuizQuestion question = quiz.getQuizQuestions().stream()
+                    .filter(q -> q.getQuizAnswers().contains(answer))
+                    .findFirst()
+                    .orElseThrow(() -> new RuntimeException("❌ Question non trouvée pour réponse ID " + answerId));
+
+            Response response = new Response();
+            response.setGivenResponse(answer.getAnswerText());
+            response.setCorrect(isCorrect);
+            response.setQuiz(quiz);
+
+            if (isCorrect) {
+                response.setScoreObtained(true);
+                totalScore += question.getMaxGrade(); // ✅ Ajoute la note de la question au total
+            }
+
+            responserepo.save(response);
+        }
+
+        int maxScore = quiz.getMaxGrade();
+        boolean passed = totalScore >= quiz.getMinimumGrade();
+
+        // ✅ Retourner immédiatement le score final
+        Map<String, Object> result = new HashMap<>();
+        result.put("score", totalScore);
+        result.put("maxScore", maxScore);
+        result.put("passed", passed);
+        result.put("message", passed ? "🎉 Félicitations, vous avez réussi !" : "❌ Échec, essayez encore.");
+
+        System.out.println("✅ Score final de l'utilisateur : " + totalScore);
+        return result;
+    }
+/**
+
+    public Map<String, Object> calculateQuizScore(Long quizId, Long userId) {
+        // 🔍 Récupérer les réponses avec JPQL
+        List<Response> responses = responserepo.findResponsesByQuizAndUser(quizId, userId);
+
+        // 🎯 Calculer le score total (somme des maxGrade des réponses correctes)
+        int totalScore = responses.stream()
+                .filter(Response::isCorrect)
+                .mapToInt(response -> {
+                    QuizQuestion question = quizRepo.findById(quizId)
+                            .orElseThrow(() -> new RuntimeException("Quiz not found"))
+                            .getQuizQuestions().stream()
+                            .filter(q -> q.getQuizAnswers().stream()
+                                    .anyMatch(a -> a.getAnswerText().equals(response.getGivenResponse())))
+                            .findFirst()
+                            .orElseThrow(() -> new RuntimeException("Question not found"));
+                    return question.getMaxGrade(); // ✅ On récupère la note de la question
+                }).sum();
+
+        // 📌 Récupérer le quiz et la note minimale
+        Quiz quiz = quizRepo.findById(quizId)
+                .orElseThrow(() -> new RuntimeException("Quiz not found"));
+
+        int maxScore = quiz.getMaxGrade(); // ✅ Score maximal possible du quiz
+        boolean passed = totalScore >= quiz.getMinimumGrade(); // ✅ Succès si score >= note minimale
+
+        // 📝 Construire la réponse JSON
+        Map<String, Object> result = new HashMap<>();
+        result.put("score", totalScore);
+        result.put("maxScore", maxScore);
+        result.put("passed", passed);
+        result.put("message", passed ? "🎉 Félicitations, vous avez réussi !" : "❌ Échec, essayez encore.");
+
+        return result;
+    }
+ **/
 }
+
+
+
+
+
+
+

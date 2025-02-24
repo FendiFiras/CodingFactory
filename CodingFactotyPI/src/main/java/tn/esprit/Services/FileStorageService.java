@@ -34,6 +34,6 @@ public class FileStorageService {
         Files.copy(file.getInputStream(), filePath);
 
         // Retourner l'URL du fichier
-        return "/uploads/" + fileName;
+        return  fileName;
     }
 }

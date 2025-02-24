@@ -1,6 +1,9 @@
 package tn.esprit.Controller;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.Resource;
+import org.springframework.core.io.UrlResource;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -8,6 +11,8 @@ import tn.esprit.Services.*;
 import tn.esprit.entities.Event;
 
 import java.io.IOException;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
@@ -28,7 +33,8 @@ public class eventController {
     private final IPlanningService planningService;
     private final IRegistrationService registrationService;
     private final FileStorageService fileStorageService;
-
+    @Value("${file.upload-dir}")
+    private String uploadDir;
 
     @PostMapping("/upload")
     public ResponseEntity<Map<String, String>> uploadFile(@RequestParam("file") MultipartFile file) throws IOException {
@@ -37,7 +43,16 @@ public class eventController {
         response.put("url", fileUrl);
         return ResponseEntity.ok(response);
     }
+    @GetMapping("/{filename}")
+    public Resource getFile(@PathVariable String filename) {
+        try {
 
+            Path filePath = Paths.get(uploadDir).resolve(filename);
+            return new UrlResource(filePath.toUri());
+        } catch (Exception e) {
+            throw new RuntimeException("Fichier introuvable : " + filename);
+        }
+    }
 
     @GetMapping("/event")
     public List<Event> getEvents() {

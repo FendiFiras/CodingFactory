@@ -110,4 +110,6 @@ public class User {
     private Partnership partnership;
     @OneToOne
     private Assignment assignment;
+
+
 }

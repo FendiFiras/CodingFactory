@@ -6,14 +6,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import tn.esprit.entities.Quiz;
-import tn.esprit.entities.QuizAnswer;
-import tn.esprit.entities.QuizQuestion;
-import tn.esprit.entities.Response;
-import tn.esprit.repositories.QuizAnswerRepo;
-import tn.esprit.repositories.QuizQuestionRepo;
-import tn.esprit.repositories.QuizRepo;
-import tn.esprit.repositories.ResponseREpo;
+import tn.esprit.entities.*;
+import tn.esprit.repositories.*;
 
 import java.util.*;
 
@@ -26,6 +20,7 @@ public class ServiceQuiz implements IServiceQuiz {
     QuizQuestionRepo quizQuestionRepo;
     QuizAnswerRepo quizAnswerRepo;
     ResponseREpo responserepo;
+    UserRepo userRepo;
 
 
     public List<QuizQuestion> getAllQuestion() {
@@ -167,50 +162,64 @@ public class ServiceQuiz implements IServiceQuiz {
     public List<Quiz> getQuizzesByTraining(Long trainingId) {
         return quizRepo.findQuizzesByTraining(trainingId);
     }
+//Quiz
+public Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, List<Long> selectedAnswers) {
+    User user = userRepo.findById(userId)
+            .orElseThrow(() -> new RuntimeException("❌ Utilisateur non trouvé !"));
 
-    public Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, List<Long> selectedAnswers) {
-        Quiz quiz = quizRepo.findById(quizId)
-                .orElseThrow(() -> new RuntimeException("❌ Quiz non trouvé !"));
+    Quiz quiz = quizRepo.findById(quizId)
+            .orElseThrow(() -> new RuntimeException("❌ Quiz non trouvé !"));
 
-        int totalScore = 0;
+    int totalScore = 0;
+    Set<Response> userResponses = new HashSet<>(); // 🔥 Stocker les réponses pour User
 
-        for (Long answerId : selectedAnswers) {
-            QuizAnswer answer = quizAnswerRepo.findById(answerId)
-                    .orElseThrow(() -> new RuntimeException("❌ Réponse ID " + answerId + " non trouvée !"));
+    for (Long answerId : selectedAnswers) {
+        QuizAnswer answer = quizAnswerRepo.findById(answerId)
+                .orElseThrow(() -> new RuntimeException("❌ Réponse ID " + answerId + " non trouvée !"));
 
-            boolean isCorrect = answer.isCorrect();
+        boolean isCorrect = answer.isCorrect();
 
-            QuizQuestion question = quiz.getQuizQuestions().stream()
-                    .filter(q -> q.getQuizAnswers().contains(answer))
-                    .findFirst()
-                    .orElseThrow(() -> new RuntimeException("❌ Question non trouvée pour réponse ID " + answerId));
+        QuizQuestion question = quiz.getQuizQuestions().stream()
+                .filter(q -> q.getQuizAnswers().contains(answer))
+                .findFirst()
+                .orElseThrow(() -> new RuntimeException("❌ Question non trouvée pour réponse ID " + answerId));
 
-            Response response = new Response();
-            response.setGivenResponse(answer.getAnswerText());
-            response.setCorrect(isCorrect);
-            response.setQuiz(quiz);
+        // ✅ Création de la réponse et liaison avec Quiz
+        Response response = new Response();
+        response.setGivenResponse(answer.getAnswerText());
+        response.setCorrect(isCorrect);
+        response.setQuiz(quiz);
 
-            if (isCorrect) {
-                response.setScoreObtained(true);
-                totalScore += question.getMaxGrade(); // ✅ Ajoute la note de la question au total
-            }
-
-            responserepo.save(response);
+        if (isCorrect) {
+            response.setScoreObtained(true);
+            totalScore += question.getMaxGrade(); // ✅ Ajoute la note de la question au total
         }
 
-        int maxScore = quiz.getMaxGrade();
-        boolean passed = totalScore >= quiz.getMinimumGrade();
-
-        // ✅ Retourner immédiatement le score final
-        Map<String, Object> result = new HashMap<>();
-        result.put("score", totalScore);
-        result.put("maxScore", maxScore);
-        result.put("passed", passed);
-        result.put("message", passed ? "🎉 Félicitations, vous avez réussi !" : "❌ Échec, essayez encore.");
-
-        System.out.println("✅ Score final de l'utilisateur : " + totalScore);
-        return result;
+        userResponses.add(response); // ✅ Ajouter la réponse à l'utilisateur
     }
+
+    // ✅ Affecter les réponses à User et sauvegarder
+    user.setStudentResponses(userResponses);
+    userRepo.save(user); // ✅ Sauvegarde de User avec ses réponses
+
+    // ✅ Affecter Quiz à User et sauvegarder
+    user.getQuizs().add(quiz);
+    userRepo.save(user); // ✅ Mise à jour pour empêcher de repasser le quiz
+
+    int maxScore = quiz.getMaxGrade();
+    boolean passed = totalScore >= quiz.getMinimumGrade();
+
+    // ✅ Retourner immédiatement le score final
+    Map<String, Object> result = new HashMap<>();
+    result.put("score", totalScore);
+    result.put("maxScore", maxScore);
+    result.put("passed", passed);
+    result.put("message", passed ? "🎉 Félicitations, vous avez réussi !" : "❌ Échec, essayez encore.");
+
+    System.out.println("✅ Score final de l'utilisateur : " + totalScore);
+    return result;
+}
+
 /**
 
     public Map<String, Object> calculateQuizScore(Long quizId, Long userId) {

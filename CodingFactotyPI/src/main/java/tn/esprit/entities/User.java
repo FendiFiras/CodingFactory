@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
@@ -109,8 +110,10 @@ public class User {
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
     private List<FeedBackEvent>feedBackEvents;
+    @JsonIgnore
     @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
     private List<Registration>registrations;
+
 
 
 }

@@ -25,7 +25,7 @@ public class Registration {
 
     private Boolean confirmation;
     @ManyToOne
-    Event Revent;
+    Event event;
 
     @ManyToOne
     User user;

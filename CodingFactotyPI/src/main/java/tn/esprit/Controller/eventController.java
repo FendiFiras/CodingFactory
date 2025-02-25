@@ -4,11 +4,14 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.Exceptions.CustomException;
 import tn.esprit.Services.*;
 import tn.esprit.entities.Event;
+import tn.esprit.entities.Registration;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -81,4 +84,22 @@ public class eventController {
         return event;
     }
 
+
+
+    @GetMapping("/count/{idEvent}")
+    public long getParticipantCount(@PathVariable Long idEvent) {
+        return registrationService.getParticipantCountByEventId(idEvent);
+    }
+
+    @PostMapping("/add/{idEvent}/{idUser}")
+    public ResponseEntity<?> registerUser(@RequestBody Registration registration,
+                                          @PathVariable Long idEvent,
+                                          @PathVariable Long idUser) {
+        try {
+            Registration newRegistration = registrationService.addRegistration(registration, idEvent, idUser);
+            return ResponseEntity.ok(newRegistration);
+        } catch (CustomException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        }
+    }
 }

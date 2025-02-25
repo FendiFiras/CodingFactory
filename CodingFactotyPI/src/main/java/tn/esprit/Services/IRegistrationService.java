@@ -14,5 +14,8 @@ public interface IRegistrationService {
     public Registration retrieveRegistration(Long idRegistration) ;
     public void deleteRegistration(Long idRegistration);
     public List<Registration> getRegistration();
+    public long getParticipantCountByEventId(Long idEvent);
+
+
 
 }

@@ -1,4 +1,5 @@
 package tn.esprit.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -18,7 +19,7 @@ public class Event {
     private Long idEvent;
 
     private String title;
-
+    @Column(length = 50000)
     private String description;
 
     private LocalDateTime startDate;
@@ -45,8 +46,8 @@ public class Event {
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
     private List<Notification>notifications;
-
-    @OneToMany(cascade= CascadeType.ALL, mappedBy="Revent")
+      @JsonIgnore
+    @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
     private List<Registration>Registrations;
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="FeedEvent")

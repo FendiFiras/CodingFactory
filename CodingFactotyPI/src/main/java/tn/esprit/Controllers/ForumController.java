@@ -13,16 +13,11 @@ import java.io.IOException;
 import java.util.Date;
 import java.util.List;
 
-@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600, allowCredentials = "true") // Allow CORS for all endpoints
+@CrossOrigin(origins = "http://localhost:4200") // Allow CORS for all endpoints
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/api/forum")
 public class ForumController {
-
-    @RequestMapping(value = "/**", method = RequestMethod.OPTIONS)
-    public ResponseEntity<?> handleOptions() {
-        return ResponseEntity.ok().build();
-    }
 
 
     private final IForumService forumService;
@@ -34,6 +29,15 @@ public class ForumController {
             @RequestParam("title") String title,
             @RequestParam("description") String description,
             @RequestParam(value = "image", required = false) MultipartFile image) {
+
+        System.out.println("UserID: " + userId);
+        System.out.println("Title: " + title);
+        System.out.println("Description: " + description);
+        System.out.println("Image: " + (image != null ? image.getOriginalFilename() : "No image"));
+
+        if (title == null || description == null) {
+            return ResponseEntity.badRequest().body(null);
+        }
 
         String imagePath = null;
         if (image != null && !image.isEmpty()) {
@@ -50,9 +54,10 @@ public class ForumController {
         return ResponseEntity.ok(savedForum);
     }
 
+
     private String saveImage(MultipartFile image) {
         // Directory where images will be stored
-        String uploadDir = "/path/to/your/images/";
+        String uploadDir = "C:/uploads/";
 
         // Create the directory if it doesn't exist
         File directory = new File(uploadDir);
@@ -61,7 +66,7 @@ public class ForumController {
         }
 
         // Create a unique name for the image
-        String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename();
+        String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename().replace(" ", "_");
         String imagePath = uploadDir + fileName;
 
         // Save the image to the directory

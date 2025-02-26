@@ -2,7 +2,9 @@ package tn.esprit.Services;
 
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.Repository.ForumRepository;
 import tn.esprit.entities.Discussion;
+import tn.esprit.entities.Forum;
 import tn.esprit.entities.User;
 import tn.esprit.Repository.DiscussionRepository;
 import tn.esprit.Repository.UserRepository;
@@ -15,24 +17,35 @@ import java.util.Optional;
 public class DiscussionService implements IDiscussionService {
 
     private final DiscussionRepository discussionRepository;
+    private final ForumRepository forumRepository;
+
     private final UserRepository userRepository;
 
-    @Override
-    public Discussion addDiscussion(Discussion discussion, Long userId) {
-        Optional<User> userOpt = userRepository.findById(userId);
 
-        if (userOpt.isPresent()) {
+    public List<Discussion> getDiscussionsByForum(Long forumId) {
+        Forum forum = forumRepository.findById(forumId)
+                .orElseThrow(() -> new RuntimeException("Forum not found"));
+        return forum.getDiscussions(); // Fetch discussions directly from the Forum entity
+    }
+    @Override
+    public Discussion addDiscussion(Discussion discussion, Long userId, Long forumId) {
+        Optional<User> userOpt = userRepository.findById(userId);
+        Optional<Forum> forumOpt = forumRepository.findById(forumId);
+
+        if (userOpt.isPresent() && forumOpt.isPresent()) {
             User user = userOpt.get();
+            Forum forum = forumOpt.get();
 
             discussion.setPublicationDate(new java.util.Date());
-            discussion = discussionRepository.save(discussion); // Sauvegarder la discussion d'abord pour lui donner un ID valide
+            discussion = discussionRepository.save(discussion); // Sauvegarder la discussion pour lui donner un ID valide
 
-            user.getDiscussions().add(discussion); // Ajouter la discussion à la liste des discussions de l'utilisateur
-            userRepository.save(user); // Sauvegarder l'utilisateur pour mettre à jour la table d'association
+            // Ajouter la discussion au forum
+            forum.getDiscussions().add(discussion);
+            forumRepository.save(forum); // Sauvegarder le forum pour mettre à jour la relation
 
             return discussion;
         } else {
-            throw new IllegalArgumentException("User not found with ID: " + userId);
+            throw new IllegalArgumentException("User or Forum not found with provided IDs");
         }
     }
 
@@ -81,4 +94,7 @@ public class DiscussionService implements IDiscussionService {
     public List<Discussion> getAllDiscussions() {
         return discussionRepository.findAll();
     }
+
+
+
 }

@@ -13,6 +13,7 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -21,34 +22,44 @@ public class ServiceCourses implements IServiceCourses {
 
     TrainingRepository trainingRepo;
     CoursesRepo coursesRepo;
+    private final FileStorageService fileStorageService;
 
-    public Courses addCourse(Courses course, Long trainingId) {
-        // Trouver la formation associée à partir de son ID
-        Training training = trainingRepo.findById(trainingId).orElseThrow(() -> new IllegalArgumentException("Training not found with ID: " + trainingId));
+    public Courses addCourse(Courses course, Long trainingId, List<MultipartFile> files) throws IOException {
+        Training training = trainingRepo.findById(trainingId)
+                .orElseThrow(() -> new IllegalArgumentException("Training not found with ID: " + trainingId));
 
-        // Associer la formation à ce cours
         course.setTraining(training);
 
-        // Sauvegarder le cours dans la base de données
-        return coursesRepo.save(course);
-    }
-    public Courses updateCourse(Courses course) {
-        // Recherche du cours existant par son ID
-        Courses existingCourse = coursesRepo.findById(course.getCourseId()).orElse(null);
-        if (existingCourse == null) {
-            throw new IllegalArgumentException("Course not found with ID: " + course.getCourseId());
+        // 📂 Sauvegarde des fichiers et stockage des URLs
+        if (files != null && !files.isEmpty()) {
+            List<String> fileUrls = fileStorageService.saveFiles(files);
+            course.setFileUrls(fileUrls);
         }
 
-        // Mise à jour des attributs du cours existant
-        existingCourse.setCourseName(course.getCourseName());
-        existingCourse.setCourseDescription(course.getCourseDescription());
-        existingCourse.setDifficulty(course.getDifficulty());
-        existingCourse.setFileUrls(course.getFileUrls());
-        existingCourse.setTraining(course.getTraining()); // Associe une nouvelle formation si nécessaire
-
-        // Sauvegarde du cours mis à jour
-        return coursesRepo.save(existingCourse);
+        return coursesRepo.save(course);
     }
+    public Courses updateCourse(Courses course, List<MultipartFile> files) throws IOException {
+        Optional<Courses> existingCourse = coursesRepo.findById(course.getCourseId());
+
+        if (existingCourse.isPresent()) {
+            Courses updatedCourse = existingCourse.get();
+            updatedCourse.setCourseName(course.getCourseName());
+            updatedCourse.setCourseDescription(course.getCourseDescription());
+            updatedCourse.setDifficulty(course.getDifficulty());
+
+            // ✅ Gérer les fichiers
+            if (files != null && !files.isEmpty()) {
+                List<String> fileUrls = fileStorageService.saveFiles(files);
+                updatedCourse.getFileUrls().addAll(fileUrls);
+            }
+
+            return coursesRepo.save(updatedCourse);
+        } else {
+            throw new RuntimeException("Course not found!");
+        }
+    }
+
+
     public void deleteCourse(Long courseId) {
         // Vérifier si le cours existe
         Courses existingCourse = coursesRepo.findById(courseId).orElse(null);
@@ -70,27 +81,6 @@ public class ServiceCourses implements IServiceCourses {
     }
 
 
-    public Courses saveFile(Long courseId, MultipartFile file) throws IOException {
-        Courses course = coursesRepo.findById(courseId)
-                .orElseThrow(() -> new RuntimeException("Course not found"));
-
-        if (file != null && !file.isEmpty()) {
-            // 🔥 Nom unique pour éviter les conflits
-            String fileName = System.currentTimeMillis() + "_" + file.getOriginalFilename();
-            Path filePath = Paths.get("C:/uploads/").resolve(fileName);
-
-            // ✅ Créer le dossier si nécessaire
-            Files.createDirectories(filePath.getParent());
-
-            // 📂 Sauvegarde du fichier
-            Files.copy(file.getInputStream(), filePath);
-
-            // 🔗 Stocke uniquement l’URL d’accès au fichier dans la base de données
-            course.setFileUrls("http://localhost:8089/Courses/" + fileName);
-        }
-
-        return coursesRepo.save(course);
-    }
     public List<Courses> getCoursesByTraining(Long trainingId) {
         return coursesRepo.findCoursesByTrainingId(trainingId);
     }

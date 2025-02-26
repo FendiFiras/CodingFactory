@@ -25,8 +25,8 @@ public class Courses {
     private Long courseId;
     private String courseName;
     private String courseDescription;
-    // 🔥 On stocke plusieurs fichiers sous forme d'une seule chaîne de texte, séparée par des virgules
-    private String fileUrls;
+    @ElementCollection
+    private List<String> fileUrls;
 
     @Enumerated(EnumType.STRING)
     private CourseDifficulty difficulty;

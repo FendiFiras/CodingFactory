@@ -11,6 +11,7 @@ import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.Exceptions.CustomException;
 import tn.esprit.Services.*;
 import tn.esprit.entities.Event;
+import tn.esprit.entities.FeedBackEvent;
 import tn.esprit.entities.Registration;
 
 import java.io.IOException;
@@ -102,4 +103,29 @@ public class eventController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         }
     }
-}
+
+
+    @PostMapping("/addfeedback/{idEvent}/{idUser}")
+    public ResponseEntity<?> addFeedback(@RequestBody FeedBackEvent feedBackEvent,
+                                         @PathVariable Long idEvent,
+                                         @PathVariable Long idUser) {
+        try {
+            FeedBackEvent savedFeedback = feedBackEventService.addFeedBackEvent(feedBackEvent, idEvent, idUser);
+            return ResponseEntity.ok(savedFeedback);
+        } catch (Exception e) {
+            return ResponseEntity.badRequest().body("Erreur: " + e.getMessage());
+        }
+    }
+
+
+
+    @GetMapping("/feedbackevent/{eventId}")
+    public ResponseEntity<List<FeedBackEvent>> getFeedbacksByEventId(@PathVariable Long eventId) {
+        List<FeedBackEvent> feedbacks = feedBackEventService.getFeedbacksByEventId(eventId);
+        return ResponseEntity.ok(feedbacks);
+    }
+
+
+    }
+
+

@@ -107,6 +107,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Reclamation> reclamations;
 
+    @JsonIgnore
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
     private List<FeedBackEvent>feedBackEvents;

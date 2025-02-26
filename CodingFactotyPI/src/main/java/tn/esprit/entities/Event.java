@@ -4,6 +4,7 @@ import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
@@ -50,9 +51,9 @@ public class Event {
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
     private List<Registration>Registrations;
 
-    @OneToMany(cascade= CascadeType.ALL, mappedBy="FeedEvent")
+      @JsonIgnore
+    @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
     private List<FeedBackEvent>feedBackEvents;
-
     @OneToMany(cascade = CascadeType.ALL)
     private List<Payment> payemnts;
 

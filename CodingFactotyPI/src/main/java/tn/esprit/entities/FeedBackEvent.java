@@ -27,7 +27,7 @@ public class FeedBackEvent {
     private LocalDateTime feedbackDate;
 
     @ManyToOne
-    Event FeedEvent;
+    Event event;
 
     @ManyToOne
     User user;

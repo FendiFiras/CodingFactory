@@ -2,12 +2,14 @@ package tn.esprit.Services;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import tn.esprit.Exceptions.CustomException;
 import tn.esprit.Repository.*;
 import tn.esprit.entities.Event;
 import tn.esprit.entities.FeedBackEvent;
 import tn.esprit.entities.Registration;
 import tn.esprit.entities.User;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RequiredArgsConstructor
@@ -26,10 +28,15 @@ public class FeedBackService  implements IFeedBackEventService {
 
     public FeedBackEvent addFeedBackEvent(FeedBackEvent feedBackEvent, Long idEvent, Long idUser) {
 
-        Event e=eventRepository.getById(idEvent);
-        User u=userRepository.getById(idUser);
-        feedBackEvent.setFeedEvent(e);
+        Event e = eventRepository.findById(idEvent)
+                .orElseThrow(() -> new CustomException("Événement non trouvé"));
+
+        User u = userRepository.findById(idUser)
+                .orElseThrow(() -> new CustomException("Utilisateur non trouvé"));
+        feedBackEvent.setEvent(e);
         feedBackEvent.setUser(u);
+        feedBackEvent.setFeedbackDate(LocalDateTime.now());
+
         return feedBackEventRepository.save(feedBackEvent);
 
     }
@@ -52,6 +59,9 @@ public class FeedBackService  implements IFeedBackEventService {
         return feedBackEvents;
     }
 
+    public List<FeedBackEvent> getFeedbacksByEventId(Long eventId) {
+        return feedBackEventRepository.findByEventId(eventId);
+    }
 
 
 

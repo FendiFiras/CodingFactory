@@ -13,6 +13,7 @@ import java.io.File;
 import java.io.IOException;
 import java.util.Date;
 import java.util.List;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200") // Allow CORS for all endpoints
 @RestController
@@ -128,12 +129,14 @@ public class ForumController {
     }
 
     @DeleteMapping("/delete/{forum_id}")
-    public ResponseEntity<String> deleteForum(@PathVariable Long forum_id) {
+    public ResponseEntity<Map<String, String>> deleteForum(@PathVariable Long forum_id) {
         if (!forumRepository.existsById(forum_id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Forum not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("message", "Forum not found"));
         }
 
         forumService.deleteForum(forum_id);
-        return ResponseEntity.ok("Forum deleted successfully");
+        return ResponseEntity.ok(Map.of("message", "Forum deleted successfully"));
     }
+
 }

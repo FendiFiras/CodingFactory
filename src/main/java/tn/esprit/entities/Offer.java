@@ -22,10 +22,12 @@ public class Offer {
     private String title;
     private String description;
     private String requiredSkill;
+    private String Location;
     private String duration;
-    private String status;
 
-
+    private String EmploymentType;
+    private String JobResponsibilities;
+    private String WhatWeOffer;
 
     @OneToOne
     private Assignment assignment;
@@ -34,6 +36,9 @@ public class Offer {
 
     @OneToMany(cascade=CascadeType.ALL)
     private Set<Application> applicationss;
+
+    @ManyToOne
+    private Partnership partnership; // Reference to Partnership instead of company name
 
 
 }

@@ -10,6 +10,10 @@ import java.util.Set;
 
 @Repository
 public interface UserRepo extends JpaRepository<User,Long> {
+    User findByAssignment(Assignment assignment);
+
+    User findByEvaluation(Evaluation evaluation);
+
 
 
 }

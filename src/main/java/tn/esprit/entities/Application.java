@@ -17,9 +17,14 @@ public class Application {
     private Long idApplication;
     private float score;
     private Date submissionDate;
+    private Date Availability ;
+    private String FieldofStudy;
     private String status;
-
-
-
+    private String University;
+    private String CoverLetter;
+    private String CV;
+    @ManyToOne
+    @JoinColumn(name = "idOffer")
+    private Offer offer;
 
 }

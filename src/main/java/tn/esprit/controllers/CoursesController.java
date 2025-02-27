@@ -48,14 +48,13 @@ private ServiceCourses serviceCourses;
 
     @PutMapping(value = "/update_course", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public Courses updateCourse(
-            @RequestPart("course") String courseJson,
-            @RequestPart(value = "files", required = false) List<MultipartFile> files) throws IOException {
-
-        ObjectMapper objectMapper = new ObjectMapper();
-        Courses course = objectMapper.readValue(courseJson, Courses.class);
-
-        return serviceCourses.updateCourse(course, files);
+            @RequestPart("course") Courses course,  // 📌 Directement un objet JSON
+            @RequestPart(value = "files", required = false) List<MultipartFile> files, // 📌 Fichiers ajoutés
+            @RequestPart(value = "existingFiles", required = false) List<String> existingFiles // 📌 Fichiers conservés
+    ) throws IOException {
+        return serviceCourses.updateCourse(course, files, existingFiles);
     }
+
 
 
 

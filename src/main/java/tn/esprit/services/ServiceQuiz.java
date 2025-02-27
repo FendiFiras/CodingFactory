@@ -21,6 +21,7 @@ public class ServiceQuiz implements IServiceQuiz {
     QuizAnswerRepo quizAnswerRepo;
     ResponseREpo responserepo;
     UserRepo userRepo;
+    TrainingRepository trainingRepo;
 
 
     public List<QuizQuestion> getAllQuestion() {
@@ -43,11 +44,22 @@ public class ServiceQuiz implements IServiceQuiz {
 
     public void deleteQuiz(Long quizId) {
         Quiz quiz = quizRepo.findById(quizId).orElse(null);
+
         if (quiz == null) {
             throw new IllegalArgumentException("Quiz not found with ID: " + quizId);
         }
-        quizRepo.delete(quiz);
+
+        // 🔥 Vérifier si le quiz est lié à une formation
+        if (quiz.getTraining() != null) {
+            Training training = quiz.getTraining();
+            training.setQuiz(null); // ✅ Supprimer l'association avec Training
+            trainingRepo.save(training); // ✅ Sauvegarder la mise à jour du Training
+        }
+
+        // ✅ Supprimer le Quiz après avoir dissocié Training
+        quizRepo.deleteById(quizId);
     }
+
 
     public Quiz updateQuiz(Quiz quiz) {
         Quiz existingQuiz = quizRepo.findById(quiz.getIdQuiz())

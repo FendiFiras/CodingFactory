@@ -13,6 +13,10 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
 
     @Query("SELECT t FROM Training t JOIN t.Users u WHERE u.idUser = :userId")
     List<Training> findTrainingsByUserId(@Param("userId") Long userId);
+    @Query("SELECT t FROM Training t JOIN t.Quiz q WHERE q.idQuiz = :quizId")
+    List<Training> findTrainingsByQuizId(@Param("quizId") Long quizId);
+    @Query("SELECT t FROM Training t JOIN t.coursess c WHERE c.courseId = :courseId")
+    List<Training> findTrainingsByCourseId(@Param("courseId") Long courseId);
 
 }
 

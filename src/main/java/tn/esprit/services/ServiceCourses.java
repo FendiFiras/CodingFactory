@@ -12,6 +12,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
@@ -38,26 +39,37 @@ public class ServiceCourses implements IServiceCourses {
 
         return coursesRepo.save(course);
     }
-    public Courses updateCourse(Courses course, List<MultipartFile> files) throws IOException {
-        Optional<Courses> existingCourse = coursesRepo.findById(course.getCourseId());
+    public Courses updateCourse(Courses course, List<MultipartFile> files, List<String> existingFiles) throws IOException {
+        Optional<Courses> existingCourseOpt = coursesRepo.findById(course.getCourseId());
 
-        if (existingCourse.isPresent()) {
-            Courses updatedCourse = existingCourse.get();
-            updatedCourse.setCourseName(course.getCourseName());
-            updatedCourse.setCourseDescription(course.getCourseDescription());
-            updatedCourse.setDifficulty(course.getDifficulty());
+        if (existingCourseOpt.isPresent()) {
+            Courses existingCourse = existingCourseOpt.get();
 
-            // ✅ Gérer les fichiers
-            if (files != null && !files.isEmpty()) {
-                List<String> fileUrls = fileStorageService.saveFiles(files);
-                updatedCourse.getFileUrls().addAll(fileUrls);
+            // ✅ Mise à jour des informations du cours
+            existingCourse.setCourseName(course.getCourseName());
+            existingCourse.setCourseDescription(course.getCourseDescription());
+            existingCourse.setDifficulty(course.getDifficulty());
+
+            // ✅ Supprimer les fichiers retirés par l’utilisateur
+            if (existingFiles != null) {
+                existingCourse.setFileUrls(existingFiles); // 📌 Ne garder que les fichiers restants
+            } else {
+                existingCourse.setFileUrls(new ArrayList<>()); // 📌 Aucun fichier restant
             }
 
-            return coursesRepo.save(updatedCourse);
+            // ✅ Ajouter les nouveaux fichiers s'ils existent
+            if (files != null && !files.isEmpty()) {
+                List<String> newFileUrls = fileStorageService.saveFiles(files);
+                existingCourse.getFileUrls().addAll(newFileUrls);
+            }
+
+            return coursesRepo.save(existingCourse);
         } else {
-            throw new RuntimeException("Course not found!");
+            throw new RuntimeException("❌ Course not found!");
         }
     }
+
+
 
 
     public void deleteCourse(Long courseId) {

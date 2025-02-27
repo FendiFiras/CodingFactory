@@ -28,15 +28,16 @@ public class TrainingController {
 
 
     @DeleteMapping("/delete/{trainingId}")
-    public String deleteTraining(@PathVariable Long trainingId) {
-        try {
+    public void deleteTraining(@PathVariable Long trainingId) {
+
             // Appeler la méthode du service pour supprimer le training
             serviceTraining.deleteTraining(trainingId);
-            return "Training deleted successfully.";
-        } catch (IllegalArgumentException e) {
-            return "Training not found with ID: " + trainingId;
+
         }
-    }
+
+
+
+
     @PutMapping("/updatetraining")
     public Training updateTraining(@RequestBody Training training) {
         return serviceTraining.updateTraining(training); // Retourne directement l'objet mis à jour
@@ -57,6 +58,20 @@ public class TrainingController {
     @GetMapping("/user/{userId}")
     public ResponseEntity<List<Training>> getTrainingsByUser(@PathVariable Long userId) {
         List<Training> trainings = serviceTraining.getTrainingsByUser(userId);
+        return ResponseEntity.ok(trainings);
+    }
+
+
+    // ✅ Endpoint pour récupérer les formations associées à un quiz
+    @GetMapping("/quiz/{quizId}")
+    public List<Training> getTrainingsByQuiz(@PathVariable Long quizId) {
+        return serviceTraining.getTrainingsByQuizId(quizId);
+    }
+
+
+    @GetMapping("/courses/{courseId}")
+    public ResponseEntity<List<Training>> getTrainingsForCourse(@PathVariable Long courseId) {
+        List<Training> trainings = serviceTraining.getTrainingsForCourse(courseId);
         return ResponseEntity.ok(trainings);
     }
 }

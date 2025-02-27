@@ -15,4 +15,5 @@ public interface CoursesRepo    extends JpaRepository<Courses,Long> {
     List<Courses> findCoursesByTrainingId(@Param("trainingId") Long trainingId);
 
 
+
 }

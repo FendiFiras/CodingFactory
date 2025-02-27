@@ -115,8 +115,13 @@ public class ServiceTraining  implements IServiceTraining {
     }
 
 
+    // ✅ Récupérer les formations associées à un quiz
+    public List<Training> getTrainingsByQuizId(Long quizId) {
+        return trainingRepo.findTrainingsByQuizId(quizId);
+    }
 
-
-
+    public List<Training> getTrainingsForCourse(Long courseId) {
+        return trainingRepo.findTrainingsByCourseId(courseId);
+    }
 
 }

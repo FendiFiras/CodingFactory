@@ -49,7 +49,15 @@ public class MessageService {
             throw new IllegalArgumentException("User or Discussion not found");
         }
     }
-
+    public List<Message> getAllMessagesForDiscussion(Long discussionId) {
+        Optional<Discussion> discussionOpt = discussionRepository.findByIdWithMessages(discussionId);
+        if (discussionOpt.isPresent()) {
+            Discussion discussion = discussionOpt.get();
+            return discussion.getMessages(); // Retourne la liste des messages de la discussion
+        } else {
+            throw new IllegalArgumentException("Discussion not found with ID: " + discussionId);
+        }
+    }
 
 
     public Message updateMessage(Message updatedMessage) {

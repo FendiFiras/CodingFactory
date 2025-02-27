@@ -3,10 +3,12 @@ package tn.esprit.Controllers;
 import lombok.RequiredArgsConstructor;
 import java.util.List;
 
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.Services.MessageService;
 import tn.esprit.entities.Message;
+@CrossOrigin(origins = "http://localhost:4200") // Allow CORS for all endpoints
 
 @RestController
 @RequiredArgsConstructor
@@ -22,7 +24,15 @@ public class MessageController {
         Message savedMessage = messageService.addMessageToDiscussionAndUser(message, userId, discussionId);
         return ResponseEntity.ok(savedMessage);
     }
-
+    @GetMapping("/discussion/{discussionId}")
+    public ResponseEntity<List<Message>> getMessagesForDiscussion(@PathVariable Long discussionId) {
+        try {
+            List<Message> messages = messageService.getAllMessagesForDiscussion(discussionId);
+            return ResponseEntity.ok(messages);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
+    }
 
     @PutMapping("/update")
     public ResponseEntity<Message> updateMessage(@RequestBody Message message) {

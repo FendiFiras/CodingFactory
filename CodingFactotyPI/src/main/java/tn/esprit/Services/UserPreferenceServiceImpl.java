@@ -1,5 +1,6 @@
 package tn.esprit.Services;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.UserRepository;
@@ -40,9 +41,15 @@ public class UserPreferenceServiceImpl implements IUserPreferenceService {
     }
 
     @Override
-    public UserPreference modifyUserPreference(UserPreference userPreference) {
-        // Assurez-vous que l'utilisateur associé est correctement mis à jour
-        return userPreferenceRepository.save(userPreference);
+    public UserPreference modifyUserPreference(Long id, UserPreference userPreference) {
+        // Vérifie si l'ID existe dans la base de données
+        if (!userPreferenceRepository.existsById(id)) {
+            throw new EntityNotFoundException("Préférence non trouvée pour l'ID: " + id);
+        }
+
+        // Met à jour les préférences
+        userPreference.setIdPreference(id);  // Assure que l'ID est correct
+        return userPreferenceRepository.save(userPreference);  // Enregistre les modifications
     }
 
     @Override
@@ -62,7 +69,8 @@ public class UserPreferenceServiceImpl implements IUserPreferenceService {
 
 
     @Override
-    public UserPreference retrieveUserPreference(Long id) {
-        return userPreferenceRepository.findById(id).orElse(null);
+    public UserPreference retrieveUserPreference(Long idUser) {
+        return userPreferenceRepository.findByUserIdUser(idUser);
     }
+
 }

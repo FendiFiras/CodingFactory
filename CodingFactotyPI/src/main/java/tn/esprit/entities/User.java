@@ -5,6 +5,7 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import  lombok.*;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
@@ -23,7 +24,7 @@ public class User {
     private String firstName;
     private String lastName;
 
-    private LocalDateTime dateOfBirth;
+    private LocalDate dateOfBirth;
     private String password;
     @Enumerated(EnumType.STRING)
     private Gender gender;

@@ -9,7 +9,7 @@ public interface IUserPreferenceService {
 
     UserPreference addUserPreference(UserPreference userPreference);
     List<UserPreference> getAllUserPreferences();
-    UserPreference modifyUserPreference(UserPreference userPreference);
+    UserPreference modifyUserPreference(Long id ,UserPreference userPreference);
     void deleteUserPreference(Long id);
     UserPreference retrieveUserPreference(Long id);
 }

@@ -43,6 +43,11 @@ public class DiscussionService implements IDiscussionService {
             forum.getDiscussions().add(discussion);
             forumRepository.save(forum); // Sauvegarder le forum pour mettre à jour la relation
 
+            // Ajouter la discussion à l'utilisateur
+            user.getDiscussions().add(discussion);
+            userRepository.save(user); // Sauvegarder l'utilisateur pour mettre à jour la relation
+
+
             return discussion;
         } else {
             throw new IllegalArgumentException("User or Forum not found with provided IDs");
@@ -65,6 +70,13 @@ public class DiscussionService implements IDiscussionService {
         for (User user : usersInDiscussion) {
             user.getDiscussions().remove(discussion); // Retirer cette discussion de l'utilisateur
             userRepository.save(user); // Sauvegarder les changements dans l'utilisateur
+        }
+
+        // Dissocier la discussion des forums
+        List<Forum> forumsContainingDiscussion = forumRepository.findForumsByDiscussionId(discussionId); // Méthode custom pour récupérer les forums associés à la discussion
+        for (Forum forum : forumsContainingDiscussion) {
+            forum.getDiscussions().remove(discussion); // Retirer la discussion du forum
+            forumRepository.save(forum); // Sauvegarder les changements dans le forum
         }
 
         // Supprimer la discussion

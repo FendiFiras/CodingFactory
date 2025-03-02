@@ -74,7 +74,7 @@ public class User {
 
 
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Forum> forums; // Relation qui crée automatiquement la table user_forums
+    private List<Forum> forums;
 
 
     @OneToMany( cascade = CascadeType.ALL)

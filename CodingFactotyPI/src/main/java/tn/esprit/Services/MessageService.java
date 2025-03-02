@@ -11,7 +11,12 @@ import tn.esprit.entities.Discussion;
 import java.util.Date;
 import java.util.Optional;
 import java.util.List;
-
+import org.springframework.web.multipart.MultipartFile;
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 @Service
 @AllArgsConstructor
 public class MessageService {
@@ -19,6 +24,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
+    private static final String UPLOAD_DIR = "C:/uploads/";
 
 
     public Message addMessageToDiscussionAndUser(Message message, Long userId, Long discussionId) {
@@ -72,6 +78,7 @@ public class MessageService {
         } else {
             throw new IllegalArgumentException("Message not found");
         }
+
     }
 
 
@@ -108,4 +115,21 @@ public class MessageService {
         return messageRepository.findAll();
     }
 
+    public String saveImage(MultipartFile image) throws IOException {
+        // Créez le dossier de téléchargement s'il n'existe pas
+        Path uploadPath = Paths.get(UPLOAD_DIR);
+        if (!Files.exists(uploadPath)) {
+            Files.createDirectories(uploadPath);
+        }
+
+        // Générez un nom de fichier unique
+        String fileName = UUID.randomUUID().toString() + "_" + image.getOriginalFilename();
+        Path filePath = uploadPath.resolve(fileName);
+
+        // Sauvegardez l'image sur le disque
+        Files.copy(image.getInputStream(), filePath);
+
+        // Retournez l'URL de l'image
+        return fileName; // Retournez uniquement le nom du fichier
+    }
 }

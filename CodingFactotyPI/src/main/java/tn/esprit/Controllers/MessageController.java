@@ -4,12 +4,14 @@ import lombok.RequiredArgsConstructor;
 import java.util.List;
 
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.Services.MessageService;
 import tn.esprit.entities.Message;
-@CrossOrigin(origins = "http://localhost:4200") // Allow CORS for all endpoints
+import org.springframework.web.multipart.MultipartFile;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequiredArgsConstructor
 @RequestMapping("/messages")
@@ -17,12 +19,28 @@ public class MessageController {
 
     private final MessageService messageService;
 
-    @PostMapping("/add")
-    public ResponseEntity<Message> addMessage(@RequestBody Message message,
-                                              @RequestParam Long userId,
-                                              @RequestParam Long discussionId) {
-        Message savedMessage = messageService.addMessageToDiscussionAndUser(message, userId, discussionId);
-        return ResponseEntity.ok(savedMessage);
+    @PostMapping(value = "/add-with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Message> addMessageWithImage(
+            @RequestParam("userId") Long userId,
+            @RequestParam("discussionId") Long discussionId,
+            @RequestParam("description") String description,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+
+        try {
+            Message message = new Message();
+            message.setDescription(description);
+
+            // Ajoutez l'image au message si elle est fournie
+            if (image != null && !image.isEmpty()) {
+                String imageUrl = messageService.saveImage(image); // Méthode pour sauvegarder l'image
+                message.setImage(imageUrl); // Utilisez le champ `image` de votre entité
+            }
+
+            Message savedMessage = messageService.addMessageToDiscussionAndUser(message, userId, discussionId);
+            return ResponseEntity.ok(savedMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
     @GetMapping("/discussion/{discussionId}")
     public ResponseEntity<List<Message>> getMessagesForDiscussion(@PathVariable Long discussionId) {
@@ -34,10 +52,27 @@ public class MessageController {
         }
     }
 
-    @PutMapping("/update")
-    public ResponseEntity<Message> updateMessage(@RequestBody Message message) {
-        Message updatedMessage = messageService.updateMessage(message);
-        return ResponseEntity.ok(updatedMessage);
+    @PutMapping(value = "/{messageId}/update-with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
+    public ResponseEntity<Message> updateMessageWithImage(
+            @PathVariable Long messageId,
+            @RequestParam("description") String description,
+            @RequestParam(value = "image", required = false) MultipartFile image) {
+
+        try {
+            Message message = messageService.getMessageById(messageId);
+            message.setDescription(description);
+
+            // Ajoutez la nouvelle image au message si elle est fournie
+            if (image != null && !image.isEmpty()) {
+                String imageUrl = messageService.saveImage(image); // Méthode pour sauvegarder l'image
+                message.setImage(imageUrl); // Utilisez le champ `image` de votre entité
+            }
+
+            Message updatedMessage = messageService.updateMessage(message);
+            return ResponseEntity.ok(updatedMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
     }
 
 
@@ -49,6 +84,13 @@ public class MessageController {
         } catch (IllegalArgumentException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }
+    }
+
+    @PutMapping("/update/{messageId}")
+    public ResponseEntity<Message> updateMessage(@PathVariable Long messageId, @RequestBody Message message) {
+        message.setMessage_id(messageId); // Ensure the message ID is set
+        Message updatedMessage = messageService.updateMessage(message);
+        return ResponseEntity.ok(updatedMessage);
     }
 
 

@@ -19,6 +19,22 @@ public class MessageController {
 
     private final MessageService messageService;
 
+    @PostMapping("/add")
+    public ResponseEntity<Message> addMessage(
+            @RequestParam("userId") Long userId,
+            @RequestParam("discussionId") Long discussionId,
+            @RequestParam("description") String description) {
+
+        try {
+            Message message = new Message();
+            message.setDescription(description);
+
+            Message savedMessage = messageService.addMessageToDiscussionAndUser(message, userId, discussionId);
+            return ResponseEntity.ok(savedMessage);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
     @PostMapping(value = "/add-with-image", consumes = MediaType.MULTIPART_FORM_DATA_VALUE)
     public ResponseEntity<Message> addMessageWithImage(
             @RequestParam("userId") Long userId,

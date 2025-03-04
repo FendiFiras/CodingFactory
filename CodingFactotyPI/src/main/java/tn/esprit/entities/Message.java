@@ -36,5 +36,8 @@ public class Message {
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<Like> likes;
 
+    @Column(nullable = false)
+    private boolean anonymous = false;
+
 
 }

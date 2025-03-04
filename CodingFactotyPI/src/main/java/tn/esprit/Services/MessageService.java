@@ -38,15 +38,10 @@ public class MessageService {
             // Assigner la date de création du message
             message.setMessageDate(new Date());
 
-            // Sauvegarder le message dans la table Message
+            // Sauvegarder le message
             message = messageRepository.save(message);
 
-            // Ajouter le message à l'utilisateur et à la discussion via les tables d'association
-            // Ajout dans user_message (relation entre user et message)
-            user.getMessages().add(message);
-            userRepository.save(user);
-
-            // Ajout dans discussion_message (relation entre discussion et message)
+            // Ajouter le message à la discussion
             discussion.getMessages().add(message);
             discussionRepository.save(discussion);
 
@@ -55,11 +50,11 @@ public class MessageService {
             throw new IllegalArgumentException("User or Discussion not found");
         }
     }
+
     public List<Message> getAllMessagesForDiscussion(Long discussionId) {
-        Optional<Discussion> discussionOpt = discussionRepository.findByIdWithMessages(discussionId);
+        Optional<Discussion> discussionOpt = discussionRepository.findById(discussionId);
         if (discussionOpt.isPresent()) {
-            Discussion discussion = discussionOpt.get();
-            return discussion.getMessages(); // Retourne la liste des messages de la discussion
+            return discussionOpt.get().getMessages();
         } else {
             throw new IllegalArgumentException("Discussion not found with ID: " + discussionId);
         }

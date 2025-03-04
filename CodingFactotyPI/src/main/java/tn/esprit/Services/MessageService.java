@@ -24,7 +24,7 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
-    private static final String UPLOAD_DIR = "C:/uploads/";
+    private static final String UPLOAD_DIR = "C:/uploads/";  
 
 
     public Message addMessageToDiscussionAndUser(Message message, Long userId, Long discussionId) {

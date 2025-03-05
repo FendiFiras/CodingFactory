@@ -1,10 +1,12 @@
 package tn.esprit.Controller;
 
+import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
@@ -12,6 +14,7 @@ import tn.esprit.Exceptions.CustomException;
 import tn.esprit.Services.*;
 import tn.esprit.entities.Event;
 import tn.esprit.entities.FeedBackEvent;
+import tn.esprit.entities.Planning;
 import tn.esprit.entities.Registration;
 
 import java.io.IOException;
@@ -125,6 +128,80 @@ public class eventController {
         return ResponseEntity.ok(feedbacks);
     }
 
+
+    @DeleteMapping("/deletefeedback/{id}")
+    public ResponseEntity<Void> deleteFeedBackEvent(@PathVariable Long id) {
+        feedBackEventService.deleteFeedBackEvent(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+    @GetMapping("/registration/{eventId}")
+    public ResponseEntity<List<Registration>> getRegistrationByEventId(@PathVariable Long eventId) {
+        List<Registration> registrations = registrationService.getRegistrationByEventId(eventId);
+        return ResponseEntity.ok(registrations);
+    }
+
+
+    @DeleteMapping("/deleteregistration/{id}")
+    public ResponseEntity<Void> deleteRegistration(@PathVariable Long id) {
+        registrationService.deleteRegistration(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+
+    @GetMapping("/checkparticipant/{idEvent}/{idUser}")
+    public ResponseEntity<Boolean> checkUserParticipation(@PathVariable Long idEvent, @PathVariable Long idUser) {
+        try {
+            boolean isAlreadyRegistered = registrationService.dejaparticiper(idEvent, idUser);
+            return ResponseEntity.ok(isAlreadyRegistered);
+        } catch (CustomException ex) {
+            return ResponseEntity.status(404).body(false);  // Event or User not found
+        }
+    }
+
+
+
+    @PostMapping("/addplanning/{idEvent}/{idLocationEvent}")
+    public ResponseEntity<Planning> addPlanning(@RequestBody Planning planning,
+                                                @PathVariable Long idEvent,
+                                                @PathVariable Long idLocationEvent) {
+        Planning newPlanning = planningService.addPlanning(planning, idEvent, idLocationEvent);
+        return ResponseEntity.ok(newPlanning);
+    }
+
+    @GetMapping("/planningevent/{eventId}")
+    public ResponseEntity<List<Planning>> getPlanningByEventId(@PathVariable Long eventId) {
+        List<Planning> plannings = planningService.getPlanningByEventId(eventId);
+        return ResponseEntity.ok(plannings);
+    }
+
+    @DeleteMapping("/deleteplanning/{id}")
+    public ResponseEntity<Void> deletePlanning(@PathVariable Long id) {
+        planningService.deletePlanning(id);
+        return ResponseEntity.noContent().build();
+    }
+
+
+    @PutMapping("/updateplanning/{idEvent}/{idLocationEvent}")
+    public Planning updatePlanning(@RequestBody Planning planning,@PathVariable Long idEvent, @PathVariable Long idLocationEvent) {
+        return planningService.updatePlanning(planning,idEvent,idLocationEvent);
+    }
+
+
+    @GetMapping(value = "/qrcode/{eventId}", produces = MediaType.IMAGE_PNG_VALUE)
+    public ResponseEntity<byte[]> getEventQRCode(@PathVariable Long eventId) throws WriterException, IOException {
+        try {
+            byte[] qrCode = eventService.generateEventQRCode(eventId);
+            return ResponseEntity.ok()
+                    .contentType(MediaType.IMAGE_PNG)
+                    .body(qrCode);
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.notFound().build();
+        }
+    }
 
     }
 

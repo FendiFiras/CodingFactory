@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -25,10 +26,17 @@ public class Planning {
     private LocalDateTime endDatetime;
 
     private String description;
+
+    private String video;
+    @Enumerated(EnumType.STRING)
+    private LocationType locationType;
     @ManyToOne
+    @JsonBackReference
+
     Event event;
     @ManyToOne
     LocationEvent locationEvent;
+
 
 }
 

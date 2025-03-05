@@ -50,10 +50,7 @@ public class FeedBackService  implements IFeedBackEventService {
         return feedBackEventRepository.findById(idFeedBackEvent).get();
     }
 
-    public void deleteFeedBackEvent(Long idFeedBackEvent) {
-        feedBackEventRepository.deleteById(idFeedBackEvent);
 
-    }
     public List<FeedBackEvent> getFeedBackEvent() {
         List<FeedBackEvent> feedBackEvents = feedBackEventRepository.findAll();
         return feedBackEvents;
@@ -63,7 +60,10 @@ public class FeedBackService  implements IFeedBackEventService {
         return feedBackEventRepository.findByEventId(eventId);
     }
 
+    public void deleteFeedBackEvent(Long idFeedBackEvent) {
+        feedBackEventRepository.deleteById(idFeedBackEvent);
 
+    }
 
 
 }

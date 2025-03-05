@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
@@ -41,8 +42,11 @@ public class Event {
     @Enumerated(EnumType.STRING)
     private EventType eventType;
 
+    @JsonIgnore
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
+    @JsonManagedReference
+
     private List<Planning> Plannings;
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")

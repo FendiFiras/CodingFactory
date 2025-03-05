@@ -4,6 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.*;
 import tn.esprit.entities.Event;
+import tn.esprit.entities.FeedBackEvent;
 import tn.esprit.entities.LocationEvent;
 import tn.esprit.entities.Planning;
 
@@ -24,16 +25,24 @@ public class PlanningService  implements IPlanningService {
     public Planning addPlanning(Planning planning,Long idEvent,Long idLocationEvent) {
 
         Event e=eventRepository.getById(idEvent);
-        LocationEvent l=locationEventRepository.getById(idLocationEvent);
+        if (idLocationEvent != 0) {
+
+            LocationEvent l = locationEventRepository.getById(idLocationEvent);
+            planning.setLocationEvent(l);
+
+        }
+
         planning.setEvent(e);
-        planning.setLocationEvent(l);
         return planningRepository.save(planning);
 
     }
-    public Planning updatePlanning(Planning planning,Long idLocationEvent) {
-
-        LocationEvent l=locationEventRepository.getById(idLocationEvent);
-        planning.setLocationEvent(l);
+    public Planning updatePlanning(Planning planning,Long idEvent,Long idLocationEvent) {
+      if(idLocationEvent!=0) {
+          LocationEvent l = locationEventRepository.getById(idLocationEvent);
+          planning.setLocationEvent(l);
+      }
+        Event e = eventRepository.getById(idEvent);
+        planning.setEvent(e);
         return planningRepository.save(planning);
 
     }
@@ -49,5 +58,10 @@ public class PlanningService  implements IPlanningService {
     public List<Planning> getPlanning() {
         List<Planning> plannings = planningRepository.findAll();
         return plannings;
+    }
+
+
+    public List<Planning> getPlanningByEventId(Long eventId) {
+        return planningRepository.findByEventId(eventId);
     }
 }

@@ -24,10 +24,8 @@ public class LocationEvent {
 
     private float longitude;
 
-    @Enumerated(EnumType.STRING)
-    private LocationType locationType;
 
-    private String virtualLink;
+
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="locationEvent")
     private Set<Planning> Plannings;

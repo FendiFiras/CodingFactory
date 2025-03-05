@@ -15,6 +15,9 @@ public interface IRegistrationService {
     public void deleteRegistration(Long idRegistration);
     public List<Registration> getRegistration();
     public long getParticipantCountByEventId(Long idEvent);
+    public List<Registration> getRegistrationByEventId(Long eventId);
+    public boolean dejaparticiper(Long idEvent,Long idUser);
+
 
 
 

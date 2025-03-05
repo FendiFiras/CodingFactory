@@ -4,10 +4,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.Exceptions.CustomException;
 import tn.esprit.Repository.*;
-import tn.esprit.entities.Event;
-import tn.esprit.entities.LocationEvent;
-import tn.esprit.entities.Registration;
-import tn.esprit.entities.User;
+import tn.esprit.entities.*;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -80,4 +77,23 @@ public class RegistrationService  implements IRegistrationService{
         return registrationRepository.countConfirmedParticipantsByEventId(idEvent);
     }
 
+
+    public List<Registration> getRegistrationByEventId(Long eventId) {
+        return registrationRepository.findByEventId(eventId);
+    }
+
+
+   public boolean dejaparticiper(Long idEvent,Long idUser)
+   {
+
+       Event e = eventRepository.findById(idEvent)
+               .orElseThrow(() -> new CustomException("Événement non trouvé"));
+
+       User u = userRepository.findById(idUser)
+               .orElseThrow(() -> new CustomException("Utilisateur non trouvé"));
+       // Vérifier si l'utilisateur est déjà inscrit
+       boolean isAlreadyRegistered = registrationRepository.existsByEventAndUser(e, u);
+       return (isAlreadyRegistered);
+
+   }
 }

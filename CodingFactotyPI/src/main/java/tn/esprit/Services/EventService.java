@@ -1,11 +1,16 @@
 package tn.esprit.Services;
 
+import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.*;
 import tn.esprit.entities.*;
 
+import java.io.IOException;
 import java.util.List;
+import java.util.Optional;
+
+
 
 @RequiredArgsConstructor
 @Service
@@ -19,6 +24,7 @@ public class EventService implements IEventService{
     private final NotificationRepository notificationRepository;
     private final PlanningRepository planningRepository;
     private final RegistrationRepository registrationRepository;
+    private final QRCodeService qrCodeService;
 
     public Event addEvent(Event event) {
        // User admin = userRepository.findByRole(Role.ADMIN); // Récupérer l’admin
@@ -47,6 +53,16 @@ public class EventService implements IEventService{
     public List<Event> getEvent() {
         List<Event> event = eventRepository.findAll();
         return event;
+    }
+
+    // 🎯 **Méthode pour générer le QR Code d'un événement**
+    public byte[] generateEventQRCode(Long eventId) throws WriterException, IOException {
+        Event event = eventRepository.findById(eventId)
+                .orElseThrow(() -> new IllegalArgumentException("L'événement avec ID " + eventId + " n'existe pas."));
+
+        // Utilisez une URL qui pointe vers une route fonctionnelle dans Angular
+        String qrContent = "http://192.168.1.11:4200/detailseventfront/" + eventId; // Modifiez pour une route existante
+        return qrCodeService.generateQRCode(qrContent, 300, 300);
     }
 
 }

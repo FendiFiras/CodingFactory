@@ -10,5 +10,6 @@ public interface IFeedBackEventService {
 
     public List<FeedBackEvent> getFeedbacksByEventId(Long eventId);
 
+    public void deleteFeedBackEvent(Long idFeedBackEvent);
 
     }

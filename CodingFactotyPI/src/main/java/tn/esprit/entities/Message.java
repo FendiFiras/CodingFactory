@@ -30,11 +30,13 @@ public class Message {
     private Long numberOfLikes;
 
 
+
     @OneToMany( cascade = CascadeType.ALL)
     private List<Report> reports;
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<Like> likes;
+
 
     @Column(nullable = false)
     private boolean anonymous = false;

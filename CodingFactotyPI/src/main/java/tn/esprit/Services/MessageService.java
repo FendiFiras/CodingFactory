@@ -2,6 +2,8 @@ package tn.esprit.Services;
 
 import jakarta.transaction.Transactional;
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.*;
 import tn.esprit.entities.Message;
@@ -24,7 +26,8 @@ public class MessageService {
     private final MessageRepository messageRepository;
     private final UserRepository userRepository;
     private final DiscussionRepository discussionRepository;
-    private static final String UPLOAD_DIR = "C:/uploads/";  
+    private static final String UPLOAD_DIR = "C:/uploads/";
+
 
 
     public Message addMessageToDiscussionAndUser(Message message, Long userId, Long discussionId) {
@@ -36,6 +39,7 @@ public class MessageService {
             Discussion discussion = discussionOpt.get();
 
             // Assigner la date de création du message
+
             message.setMessageDate(new Date());
 
             // Sauvegarder le message

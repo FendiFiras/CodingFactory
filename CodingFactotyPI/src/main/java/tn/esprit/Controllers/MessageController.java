@@ -43,11 +43,13 @@
                 @RequestParam("userId") Long userId,
                 @RequestParam("discussionId") Long discussionId,
                 @RequestParam("description") String description,
-                @RequestParam(value = "image", required = false) MultipartFile image) {
+                @RequestParam(value = "image", required = false) MultipartFile image,
+                @RequestParam(value = "anonymous", required = false, defaultValue = "false") boolean anonymous) {
 
             try {
                 Message message = new Message();
                 message.setDescription(description);
+                message.setAnonymous(anonymous); // Ajout du mode anonyme
 
                 // Ajoutez l'image au message si elle est fournie
                 if (image != null && !image.isEmpty()) {
@@ -61,6 +63,7 @@
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
+
         @GetMapping("/discussion/{discussionId}")
         public ResponseEntity<List<Message>> getMessagesForDiscussion(@PathVariable Long discussionId) {
             try {

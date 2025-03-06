@@ -1,12 +1,15 @@
 package tn.esprit.Controllers;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.Discussion;
 import tn.esprit.Services.IDiscussionService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @CrossOrigin(origins = "http://localhost:4200") // Allow CORS for all endpoints
@@ -49,12 +52,20 @@ public class DiscussionController {
 
 
     @DeleteMapping("/deleteDiscussion/{discussionId}")
-    public String deleteDiscussion(@PathVariable Long discussionId) {
+    public ResponseEntity<Map<String, String>> deleteDiscussion(@PathVariable Long discussionId) {
         try {
+            // Supprimer la discussion
             discussionService.deleteDiscussion(discussionId);
-            return "Discussion deleted successfully.";
+
+            // Retourner une réponse JSON
+            Map<String, String> response = new HashMap<>();
+            response.put("message", "Discussion deleted successfully.");
+            return ResponseEntity.ok(response);
         } catch (IllegalArgumentException e) {
-            return "Discussion not found with ID: " + discussionId;
+            // Retourner une erreur JSON si la discussion n'existe pas
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("error", e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
     }
 

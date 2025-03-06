@@ -12,6 +12,7 @@ import tn.esprit.Services.IForumService;
 import java.io.File;
 import java.io.IOException;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -68,7 +69,7 @@ public class ForumController {
         }
 
         // Create a unique name for the image
-        String fileName = System.currentTimeMillis() + "_" + image.getOriginalFilename().replace(" ", "_");
+        String fileName = System.currentTimeMillis() + "" + image.getOriginalFilename().replace(" ", "");
         String imagePath = uploadDir + fileName;
 
         // Save the image to the directory
@@ -122,7 +123,7 @@ public class ForumController {
         }
 
         // Mettre à jour la date de modification (optionnel)
-        forum.setCreationDate(new Date());  // Vous pouvez aussi stocker une `modificationDate` séparée si nécessaire
+        forum.setCreationDate(new Date());  // Vous pouvez aussi stocker une modificationDate séparée si nécessaire
 
         Forum updatedForum = forumService.updateForum(forum);
         return ResponseEntity.ok(updatedForum);
@@ -130,13 +131,19 @@ public class ForumController {
 
     @DeleteMapping("/delete/{forum_id}")
     public ResponseEntity<Map<String, String>> deleteForum(@PathVariable Long forum_id) {
+        // Check if the forum exists
         if (!forumRepository.existsById(forum_id)) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(Map.of("message", "Forum not found"));
+            Map<String, String> errorResponse = new HashMap<>();
+            errorResponse.put("message", "Forum not found");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorResponse);
         }
 
+        // Delete the forum
         forumService.deleteForum(forum_id);
-        return ResponseEntity.ok(Map.of("message", "Forum deleted successfully"));
-    }
 
+        // Return a JSON response
+        Map<String, String> successResponse = new HashMap<>();
+        successResponse.put("message", "Forum deleted successfully");
+        return ResponseEntity.ok(successResponse);
+    }
 }

@@ -18,6 +18,17 @@ public interface TrainingRepository extends JpaRepository<Training, Long> {
     @Query("SELECT t FROM Training t JOIN t.coursess c WHERE c.courseId = :courseId")
     List<Training> findTrainingsByCourseId(@Param("courseId") Long courseId);
 
+
+
+
+    @Query("SELECT t FROM Training t WHERE t NOT IN (SELECT u.trainings FROM User u WHERE u.idUser= :userId)")
+    List<Training> findTrainingsNotEnrolledByUser(@Param("userId") Long userId);
+
+    List<Training> findTop5ByOrderByStartDateDesc();
+    @Query("SELECT COUNT(t) FROM Training t JOIN t.Users u WHERE u.idUser = :userId")
+    long countTrainingsByUserId(@Param("userId") Long userId);
+
+
 }
 
 

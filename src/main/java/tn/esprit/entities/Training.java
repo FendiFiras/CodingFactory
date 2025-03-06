@@ -9,6 +9,7 @@ import jakarta.persistence.*;
 
 import java.util.Date;
 import java.util.HashSet;
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -41,6 +42,9 @@ public class Training {
     @JsonIgnore  // ✅ Ajoutez cela sur les relations
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)  // ✅ Supprime aussi le quiz si nécessaire
     private Quiz Quiz;
+    @OneToMany(cascade = CascadeType.ALL)
+    private List<Payment> payments;
+
 
 
 

@@ -17,6 +17,7 @@ import tn.esprit.repositories.TrainingRepository;
 import tn.esprit.repositories.UserRepo;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import java.util.Map;
@@ -48,21 +49,24 @@ public class PaymentService {
      * ✅ Génération d'une session Stripe Checkout pour un paiement unique
      */
     public Map<String, String> createStripeSession(Long userId, Long trainingId) throws StripeException {
-        // Récupérer l'utilisateur et vérifier son rôle
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("❌ Utilisateur non trouvé !"));
+
         if (user.getRole() != Role.STUDENT) {
             throw new RuntimeException("❌ Seuls les étudiants peuvent payer un training !");
         }
 
-        // Récupérer la formation
         Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new RuntimeException("❌ Formation non trouvée !"));
+                .orElseThrow(() -> new RuntimeException("❌ Training non trouvé !"));
 
-        // Création des paramètres de la session Checkout
+        // ✅ Vérifier si l'utilisateur est éligible à une réduction
+        boolean isEligibleForDiscount = trainingRepository.countTrainingsByUserId(userId) >= 3;
+        double discountRate = isEligibleForDiscount ? 0.3 : 0.0; // 30% de réduction si éligible
+        long finalPrice = (long) ((1 - discountRate) * training.getPrice() * 100); // Prix final en cents
+
         SessionCreateParams params = SessionCreateParams.builder()
                 .addPaymentMethodType(SessionCreateParams.PaymentMethodType.CARD)
-                .setMode(SessionCreateParams.Mode.PAYMENT) // Paiement unique
+                .setMode(SessionCreateParams.Mode.PAYMENT)
                 .setSuccessUrl("http://localhost:4200/payment-success?session_id={CHECKOUT_SESSION_ID}")
                 .setCancelUrl("http://localhost:4200/payment-cancel")
                 .addLineItem(
@@ -70,8 +74,8 @@ public class PaymentService {
                                 .setQuantity(1L)
                                 .setPriceData(
                                         SessionCreateParams.LineItem.PriceData.builder()
-                                                .setCurrency("usd")
-                                                .setUnitAmount((long) (training.getPrice() * 100)) // Prix en cents
+                                                .setCurrency("eur")
+                                                .setUnitAmount(finalPrice) // Prix après réduction
                                                 .setProductData(
                                                         SessionCreateParams.LineItem.PriceData.ProductData.builder()
                                                                 .setName(training.getTrainingName())
@@ -82,21 +86,19 @@ public class PaymentService {
                                 .build()
                 )
                 .setCustomerEmail(user.getEmail())
-                // Ajouter des métadonnées pour récupérer les IDs après paiement
                 .putMetadata("userId", userId.toString())
                 .putMetadata("trainingId", trainingId.toString())
                 .build();
 
-        // Créer la session Stripe
         Session session = Session.create(params);
 
-        // Construire la réponse avec l'ID et l'URL de la session
+        // ✅ Retourner l'URL de paiement Stripe
         Map<String, String> response = new HashMap<>();
         response.put("id", session.getId());
         response.put("url", session.getUrl());
-
         return response;
     }
+
 
     /**
      * ✅ Confirmation du paiement après succès (via redirection ou webhook)
@@ -129,8 +131,9 @@ public class PaymentService {
         payment.setPaymentDate(LocalDateTime.now());
         payment.setTransactionId(session.getPaymentIntent()); // PaymentIntent ID
         payment.setReceiptUrl(session.getUrl());
-        payment.setTrainingS(new HashSet<>());
-        payment.getTrainingS().add(training);
+
+        // Ajouter le paiement à la liste des paiements du Training
+        training.getPayments().add(payment);
 
         // Associer l'utilisateur au training
         user.getTrainings().add(training);
@@ -179,4 +182,7 @@ public class PaymentService {
 
         return response;
     }
+
+
+
 }

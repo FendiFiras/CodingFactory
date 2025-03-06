@@ -3,6 +3,7 @@ package tn.esprit.controllers;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.entities.Training;
 import tn.esprit.services.PaymentService;
 
 import java.util.Map;
@@ -43,4 +44,8 @@ public class PaymentController {
         Map<String, String> session = paymentService.createRecurringStripeSession(userId, trainingId, priceId);
         return ResponseEntity.ok(session);
     }
+
+
+
+
 }

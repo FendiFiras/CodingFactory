@@ -3,6 +3,7 @@ package tn.esprit.services;
 import tn.esprit.entities.Training;
 
 import java.util.List;
+import java.util.Map;
 
 public interface IServiceTraining {
 
@@ -16,4 +17,16 @@ public interface IServiceTraining {
     List<Training> getTrainingsByUser(Long userId);
     List<Training> getTrainingsByQuizId(Long quizId);
     List<Training> getTrainingsForCourse(Long courseId);
+    boolean isUserEnrolled(Long userId, Long trainingId);
+  List<Training> getLatestTrainings();
+    List<Training> getTrainingsNotEnrolled(Long userId);
+    String  isEligibleForDiscount(Long userId);
+  //  String checkAndGeneratePromo(Long userId);
+  boolean validatePromoCode(Long userId, String enteredCode);
+
+    public List<Map<String, Object>> getTrainingRevenue();
+
+    List<Map<String, Object>> getRevenueByHour();
+    double predictFutureHourlyRevenue();
+
 }

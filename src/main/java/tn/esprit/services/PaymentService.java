@@ -17,6 +17,7 @@ import tn.esprit.repositories.TrainingRepository;
 import tn.esprit.repositories.UserRepo;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
@@ -36,6 +37,10 @@ public class PaymentService {
 
     @Autowired
     private TrainingRepository trainingRepository;
+    @Autowired
+    private  ServiceMail serviceMail;
+    @Autowired
+    private InvoiceService invoiceService; //
 
     /**
      * ✅ Initialisation de Stripe avec la clé API
@@ -97,6 +102,9 @@ public class PaymentService {
         response.put("id", session.getId());
         response.put("url", session.getUrl());
         return response;
+
+
+
     }
 
 
@@ -104,47 +112,47 @@ public class PaymentService {
      * ✅ Confirmation du paiement après succès (via redirection ou webhook)
      */
     public void confirmPayment(String sessionId) throws StripeException {
-        // Récupérer la session Stripe pour vérifier le statut
         Session session = Session.retrieve(sessionId);
         if (!"paid".equals(session.getPaymentStatus())) {
-            throw new RuntimeException("❌ Paiement non confirmé par Stripe !");
+            throw new RuntimeException("❌ Paiement non confirmé !");
         }
 
-        // Récupérer les métadonnées
         Long userId = Long.parseLong(session.getMetadata().get("userId"));
         Long trainingId = Long.parseLong(session.getMetadata().get("trainingId"));
 
-        // Récupérer l'utilisateur et la formation
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("❌ Utilisateur non trouvé !"));
-        Training training = trainingRepository.findById(trainingId)
-                .orElseThrow(() -> new RuntimeException("❌ Training non trouvé !"));
+        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("❌ Utilisateur non trouvé !"));
+        Training training = trainingRepository.findById(trainingId).orElseThrow(() -> new RuntimeException("❌ Training non trouvé !"));
 
-        // Vérifier le rôle (par sécurité)
-        if (user.getRole() != Role.STUDENT) {
-            throw new RuntimeException("❌ Seuls les étudiants peuvent être associés à un training !");
-        }
-
-        // Enregistrer le paiement
         Payment payment = new Payment();
         payment.setAmount(training.getPrice());
         payment.setPaymentDate(LocalDateTime.now());
-        payment.setTransactionId(session.getPaymentIntent()); // PaymentIntent ID
+        payment.setTransactionId(session.getPaymentIntent());
         payment.setReceiptUrl(session.getUrl());
 
-        // Ajouter le paiement à la liste des paiements du Training
         training.getPayments().add(payment);
-
-        // Associer l'utilisateur au training
         user.getTrainings().add(training);
         training.getUsers().add(user);
 
-        // Sauvegarder les changements
         paymentRepository.save(payment);
         userRepository.save(user);
         trainingRepository.save(training);
-    }
 
+        // ✅ **Convertir la date**
+        String formattedDate = payment.getPaymentDate().format(DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm"));
+
+        // ✅ **Générer la facture en PDF**
+        byte[] pdfInvoice = invoiceService.generateInvoice(
+                user.getFirstName() + " " + user.getLastName(),
+                training.getTrainingName(),
+                training.getPrice(),
+                payment.getTransactionId(),
+                formattedDate
+        );
+
+        // 📧 **Envoyer la facture PDF par email**
+        serviceMail.sendInvoiceEmail(user.getEmail(), user.getFirstName() + " " + user.getLastName(),
+                training.getTrainingName(), training.getPrice(), payment.getTransactionId(), formattedDate);
+    }
     /**
      * ✅ (Optionnel) Génération d'une session pour un paiement récurrent
      */

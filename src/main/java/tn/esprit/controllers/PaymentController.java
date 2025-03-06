@@ -5,6 +5,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.Training;
 import tn.esprit.services.PaymentService;
+import tn.esprit.services.ServiceMail;
 
 import java.util.Map;
 
@@ -15,6 +16,8 @@ public class PaymentController {
 
     @Autowired
     private PaymentService paymentService;
+    @Autowired
+    ServiceMail serviceMail;
     @CrossOrigin(origins = "http://localhost:4200")
     @PostMapping("/create-checkout-session")
     public ResponseEntity<Map<String, String>> createCheckoutSession(
@@ -44,7 +47,6 @@ public class PaymentController {
         Map<String, String> session = paymentService.createRecurringStripeSession(userId, trainingId, priceId);
         return ResponseEntity.ok(session);
     }
-
 
 
 

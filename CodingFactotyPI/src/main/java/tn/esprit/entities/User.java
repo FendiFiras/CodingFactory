@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import lombok.AllArgsConstructor;
 import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
@@ -32,8 +33,7 @@ public class User {
     private String email;
     private String phoneNumber;
 
-    @Column(nullable = true) // Attribut optionnel
-    private String cv;
+
 
     @Column(nullable = true) // Attribut optionnel
     private String speciality;
@@ -46,7 +46,10 @@ public class User {
 
     @Column(nullable = true) // Attribut optionne
     private String grade;
-
+    @Column(nullable = true) // Attribut optionnel
+    private String cv;
+    @Column(nullable = true) // Attribut optionnel
+    private Boolean accepted;
     private String address;
     private String image;
 
@@ -70,6 +73,7 @@ public class User {
     private Set<BanLog> banLogs;
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
+    @JsonIgnore
     private Set<LoginHistory> loginHistories;
 
 

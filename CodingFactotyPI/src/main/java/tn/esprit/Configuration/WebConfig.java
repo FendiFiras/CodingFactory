@@ -14,6 +14,7 @@ public class WebConfig {
         return new WebMvcConfigurer() {
             @Override
             public void addCorsMappings(CorsRegistry registry) {
+
                 registry.addMapping("/**") // Autoriser toutes les routes
                         .allowedOrigins("http://localhost:4200") // Autoriser Angular
                         .allowedMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Méthodes autorisées

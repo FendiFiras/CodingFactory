@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -19,7 +20,7 @@ public class LoginHistory {
     private Long idLoginHistory;
     @Column(nullable = false)
     private LocalDateTime loginTime;
-    @Column(nullable = false)
+    @Column(nullable = true)
     private LocalDateTime logoutTime;
     @Column(nullable = false)
     private Boolean active;
@@ -32,6 +33,7 @@ public class LoginHistory {
     @Column(nullable = false)
     private String deviceInfo;
     @ManyToOne
+    @JsonBackReference
     private User user;
 
 }

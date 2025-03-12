@@ -31,6 +31,9 @@ public class MessageService {
 
 
     public Message addMessageToDiscussionAndUser(Message message, Long userId, Long discussionId) {
+
+        System.out.println("Enregistrement du message avec latitude : " + message.getLatitude());
+        System.out.println("Enregistrement du message avec longitude : " + message.getLongitude());
         Optional<User> userOpt = userRepository.findById(userId);
         Optional<Discussion> discussionOpt = discussionRepository.findById(discussionId);
 

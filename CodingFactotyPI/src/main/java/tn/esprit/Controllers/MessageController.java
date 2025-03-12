@@ -24,11 +24,15 @@
                 @RequestParam("userId") Long userId,
                 @RequestParam("discussionId") Long discussionId,
                 @RequestParam("description") String description,
+                @RequestParam(value = "latitude", required = false) Double latitude,
+                @RequestParam(value = "longitude", required = false) Double longitude,
                 @RequestParam(value = "anonymous", required = false, defaultValue = "false") boolean anonymous) {
 
             try {
                 Message message = new Message();
                 message.setDescription(description);
+                message.setLatitude(latitude); // Optionnel
+                message.setLongitude(longitude); // Optionnel
                 message.setAnonymous(anonymous); // Définit le mode anonyme
 
                 Message savedMessage = messageService.addMessageToDiscussionAndUser(message, userId, discussionId);
@@ -128,4 +132,29 @@
             return ResponseEntity.ok(messageService.getAllMessages());
         }
 
+        @PostMapping("/add-with-location")
+        public ResponseEntity<Message> addMessageWithLocation(
+                @RequestParam("userId") Long userId,
+                @RequestParam("discussionId") Long discussionId,
+                @RequestParam("description") String description,
+                @RequestParam(value = "latitude", required = false) Double latitude,
+                @RequestParam(value = "longitude", required = false) Double longitude,
+                @RequestParam(value = "anonymous", required = false, defaultValue = "false") boolean anonymous) {
+
+            try {
+                System.out.println("Latitude reçue : " + latitude);
+                System.out.println("Longitude reçue : " + longitude);
+
+                Message message = new Message();
+                message.setDescription(description);
+                message.setLatitude(latitude);
+                message.setLongitude(longitude);
+                message.setAnonymous(anonymous);
+
+                Message savedMessage = messageService.addMessageToDiscussionAndUser(message, userId, discussionId);
+                return ResponseEntity.ok(savedMessage);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
     }

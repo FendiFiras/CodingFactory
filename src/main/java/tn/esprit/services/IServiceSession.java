@@ -11,4 +11,6 @@ public interface IServiceSession {
     void deleteSession(Long sessionId);
     Session getOneById(Long id);
     List<Session> getAll();
+
+    List<Session> getSessionsByTraining(Long trainingId);
 }

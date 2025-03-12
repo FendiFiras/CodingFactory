@@ -55,8 +55,9 @@ public class User {
 
     @ManyToMany(mappedBy = "Users")
     private Set<Training> trainings;
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<Quiz> Quizs;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private Set <Quiz> quizss;
+
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Response> studentResponses;
 

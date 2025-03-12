@@ -65,6 +65,8 @@ public class ServiceSession  implements IServiceSession {
     public List<Session> getAll() {
         return sessionRepo.findAll();
     }
-
+    public List<Session> getSessionsByTraining(Long trainingId) {
+        return sessionRepo.findSessionsByTrainingId(trainingId);
+    }
 
 }

@@ -44,4 +44,11 @@ public class SessionController {
         return serviceSession.getAll();
     }
 
+    // ✅ API pour récupérer les sessions par trainingId
+    @GetMapping("/getSessionsByTraining/{trainingId}")
+    public ResponseEntity<List<Session>> getSessionsByTraining(@PathVariable Long trainingId) {
+        List<Session> sessions = serviceSession.getSessionsByTraining(trainingId);
+        return ResponseEntity.ok(sessions);
+    }
+
 }

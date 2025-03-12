@@ -215,7 +215,7 @@ public Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, Lis
     userRepo.save(user); // ✅ Sauvegarde de User avec ses réponses
 
     // ✅ Affecter Quiz à User et sauvegarder
-    user.getQuizs().add(quiz);
+    user.getQuizss().add(quiz);
     userRepo.save(user); // ✅ Mise à jour pour empêcher de repasser le quiz
 
     int maxScore = quiz.getMaxGrade();

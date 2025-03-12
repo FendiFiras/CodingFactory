@@ -30,6 +30,7 @@ public class Message {
     private Long numberOfLikes;
     private Double latitude; // Ajoutez ce champ
     private Double longitude; // Ajoutez ce champ
+    private String audioUrl; // Ajouter ce champ
 
 
     @OneToMany( cascade = CascadeType.ALL)

@@ -1,6 +1,12 @@
     package tn.esprit.Controllers;
 
     import lombok.RequiredArgsConstructor;
+
+    import java.io.IOException;
+    import java.nio.file.Files;
+    import java.nio.file.Path;
+    import java.nio.file.Paths;
+    import java.nio.file.StandardCopyOption;
     import java.util.List;
 
     import org.springframework.http.HttpStatus;
@@ -155,6 +161,34 @@
                 return ResponseEntity.ok(savedMessage);
             } catch (Exception e) {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+
+
+        @PostMapping("/audio")
+        public ResponseEntity<String> uploadAudio(
+                @RequestParam("file") MultipartFile file,
+                @RequestParam("userId") Long userId,
+                @RequestParam("discussionId") Long discussionId) {
+            try {
+                String filename = file.getOriginalFilename();
+                Path path = Paths.get("C:/uploads/" + filename);
+                Files.copy(file.getInputStream(), path, StandardCopyOption.REPLACE_EXISTING);
+
+                Message message = new Message();
+                message.setDescription("Audio message");
+                message.setAudioUrl("/uploads/" + filename); // Modifier le chemin ici
+                message.setAnonymous(false);
+
+                messageService.addMessageToDiscussionAndUser(message, userId, discussionId);
+
+                return ResponseEntity.ok("Fichier audio téléchargé et message enregistré avec succès !");
+            } catch (IOException e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Erreur lors du téléchargement du fichier.");
+            } catch (Exception e) {
+                e.printStackTrace();
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("An unexpected error has occured");
             }
         }
     }

@@ -26,7 +26,7 @@ public class ImageController {
 
             if (resource.exists() && resource.isReadable()) {
                 return ResponseEntity.ok()
-                        .contentType(MediaType.IMAGE_JPEG) // ⚠️ Adapter selon le type d'image
+                        .contentType(MediaType.IMAGE_JPEG) // ⚠️ Adapter s  elon le type d'image
                         .header(HttpHeaders.CONTENT_DISPOSITION, "inline; filename=\"" + resource.getFilename() + "\"")
                         .body(resource);
             } else {

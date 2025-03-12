@@ -177,7 +177,7 @@
 
                 Message message = new Message();
                 message.setDescription("Audio message");
-                message.setAudioUrl("/uploads/" + filename); // Modifier le chemin ici
+                message.setAudioUrl(filename); // Modifier le chemin ici
                 message.setAnonymous(false);
 
                 messageService.addMessageToDiscussionAndUser(message, userId, discussionId);

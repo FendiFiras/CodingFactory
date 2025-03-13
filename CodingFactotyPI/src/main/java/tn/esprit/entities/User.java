@@ -52,6 +52,7 @@ public class User {
     private Boolean accepted;
     private String address;
     private String image;
+    private String otp; // Ajouter ce champ pour stocker l'OTP
 
     @Enumerated(EnumType.STRING)
     private Role role;

@@ -3,6 +3,7 @@ package tn.esprit.Services;
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
@@ -114,5 +115,53 @@ public class EmailService {
 
         helper.setText(htmlContent, true);
         mailSender.send(message);
+    }
+    public void sendOTPEmail(String toEmail, String otp) {
+        String subject = "Almost there! Enter your OTP";
+        String htmlContent = "<html>" +
+                "<head>" +
+                "<style>" +
+                "body { font-family: Arial, sans-serif; background-color: #f4f4f4; color: #333; padding: 20px; }" +
+                ".container { max-width: 600px; margin: auto; background-color: #ffffff; padding: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); }" +
+                ".header { background-color: #FF6F00; color: #fff; padding: 10px; border-radius: 5px; text-align: center; }" +
+                ".footer { font-size: 12px; color: #888; text-align: center; margin-top: 20px; }" +
+                ".otp { font-size: 24px; font-weight: bold; color: #FF6F00; text-align: center; padding: 10px; margin-top: 20px; background-color: #f9f9f9; border: 1px solid #ddd; border-radius: 10px; }" + // Ajout de border-radius
+                ".footer a { color: #FF6F00; text-decoration: none; }" +
+                "</style>" +
+                "</head>" +
+                "<body>" +
+                "<div class='container'>" +
+                "<div class='header'>" +
+                "<h2>Almost there</h2>" +
+                "</div>" +
+                "<p>Enter the following code on the login page you just used:</p>" +
+                "<div class='otp'>" +
+                "<p>" + otp + "</p>" +
+                "</div>" +
+                "<p>This code will be active for 30 minutes. If you don't make it in time, don't sweat it, you can always request a new one.</p>" +
+                "<p>If you weren't expecting this email, someone else may have entered your email address by accident.</p>" +
+                "<p>Questions? Our friendly support team is always happy to help.</p>" +
+                "<div class='footer'>" +
+                "<p>Beautifully obvious tools: Coding Factory, Collect, and WePresent.</p>" +
+                "<p><a href='https://www.codingfactory.com'>Help</a> | <a href='https://www.codingfactory.com/about'>About us</a> | <a href='https://www.codingfactory.com/legal'>Legal</a></p>" +
+                "<p>To make sure our emails arrive, please add <b>noreply@CodingFactory.com</b> to your contact.</p>" +
+                "<p>Tunisia, 1080, Tunis</p>" + // Ajout de la localisation en Tunisie
+                "</div>" +
+                "</div>" +
+                "</body>" +
+                "</html>";
+
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true);
+            helper.setTo(toEmail);
+            helper.setSubject(subject);
+            helper.setText(htmlContent, true); // true = isHtml
+
+            mailSender.send(message);
+
+        } catch (MessagingException e) {
+            e.printStackTrace();
+        }
     }
 }

@@ -11,5 +11,4 @@ import java.util.List;
 public interface UserRepository extends JpaRepository<User, Long> {
     User findByEmail(String email); // Méthode personnalisée pour trouver un utilisateur par email
     List<User> findByRole(Role role);
-    User findByPassword(String password);
 }

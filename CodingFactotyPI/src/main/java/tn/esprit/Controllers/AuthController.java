@@ -1,5 +1,10 @@
 package tn.esprit.Controllers;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
+import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
+import com.google.api.client.http.javanet.NetHttpTransport;
+import com.google.api.client.json.gson.GsonFactory;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -15,29 +20,37 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.core.authority.AuthorityUtils;
+import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.Configuration.JwtUtil;
+import tn.esprit.Configuration.OTPGenerator;
 import tn.esprit.Repository.UserRepository;
 import tn.esprit.Services.EmailService;
+import tn.esprit.Services.UserDetailsServiceImpl;
 import tn.esprit.entities.User;
 import tn.esprit.entities.Gender;
 import tn.esprit.entities.Role;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 import java.net.MalformedURLException;
+import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.security.SecureRandom;
+import java.sql.Timestamp;
 import java.time.LocalDate;
-import java.util.Map;
-import java.util.Optional;
-import java.util.UUID;
+import java.util.*;
 
 @Slf4j
 @RestController
@@ -51,6 +64,8 @@ public class AuthController {
     private final JwtUtil jwtUtil;
     private final AuthenticationManager authenticationManager;
     private final UserDetailsService userDetailsService;
+    private final UserDetailsServiceImpl userDetailsServiceImpl;  // Injection de UserDetailsServiceImpl
+
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Autowired
     private EmailService emailService;
@@ -207,23 +222,207 @@ public class AuthController {
     }
 
 
+    @PostMapping("/google")
+    public ResponseEntity<?> googleLogin(@RequestBody Map<String, String> request) {
+        try {
+            // Vérification si le token est présent dans la requête
+            if (!request.containsKey("token")) {
+                return ResponseEntity.badRequest().body(Map.of("error", "Token manquant"));
+            }
+
+            String token = request.get("token");
+
+            // Vérification du token Google
+            GoogleIdTokenVerifier verifier = new GoogleIdTokenVerifier.Builder(new NetHttpTransport(), new GsonFactory())
+                    .setAudience(Collections.singletonList("297153804677-lou7tiqpeipefqo60c2cltqn400ki2st.apps.googleusercontent.com"))
+                    .build();
+
+            GoogleIdToken idToken;
+            try {
+                idToken = verifier.verify(token);
+            } catch (Exception e) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Token invalide ou expiré"));
+            }
+
+            if (idToken == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Impossible de vérifier le token Google"));
+            }
+
+            // Extraction des données utilisateur depuis le payload
+            GoogleIdToken.Payload payload = idToken.getPayload();
+            String email = payload.getEmail();
+            String firstName = (String) payload.get("given_name");
+            String lastName = (String) payload.get("family_name");
+            String pictureUrl = (String) payload.get("picture");
+
+            // Vérifier si l'utilisateur existe dans la base de données
+            User user = userRepository.findByEmail(email);
+            if (user == null) {
+                // L'utilisateur n'existe pas, on crée un nouvel utilisateur avec un rôle par défaut
+                user = new User();
+                user.setEmail(email);
+                user.setFirstName(firstName);
+                user.setLastName(lastName);
+
+                // Téléchargement de l'image et sauvegarde dans le dossier /uploads
+                String imageFileName = saveImageFromUrl(pictureUrl);  // Méthode pour télécharger et enregistrer l'image
+                user.setImage(imageFileName);
+
+                user.setRole(Role.STUDENT); // Par défaut, tous les nouveaux utilisateurs sont étudiants
+
+                // Générer un mot de passe aléatoire
+                String generatedPassword = generateRandomPassword();
+                BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
+                String encodedPassword = passwordEncoder.encode(generatedPassword);
+
+                // Enregistrer le mot de passe encodé dans la base de données
+                user.setPassword(encodedPassword);
+
+                user = userRepository.save(user);
+
+                // Vous pouvez envoyer le mot de passe généré à l'utilisateur par email si nécessaire
+            } else {
+                // Si l'utilisateur existe et que l'image est nulle, on met à jour l'image
+                if (user.getImage() == null) {
+                    String imageFileName = saveImageFromUrl(pictureUrl);  // Téléchargement et sauvegarde de l'image
+                    user.setImage(imageFileName);
+                    userRepository.save(user);
+                }
+            }
+
+            // Vérification que l'email et le mot de passe ne sont pas nulls ou vides
+            if (user.getEmail() == null || user.getEmail().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "L'email est manquant"));
+            }
+            if (user.getPassword() == null || user.getPassword().isEmpty()) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Le mot de passe est manquant"));
+            }
+            if (user.getRole() == null) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(Map.of("error", "Le rôle est manquant"));
+            }
+
+            // Créer un UserDetails avec le mot de passe généré pour la session
+            UserDetails userDetails = new org.springframework.security.core.userdetails.User(
+                    user.getEmail(), // Nom d'utilisateur (email)
+                    user.getPassword(), // Mot de passe encodé
+                    AuthorityUtils.createAuthorityList(user.getRole().name()) // Liste des rôles
+            );
+
+            // Générer un JWT pour l'utilisateur
+            String jwtToken = jwtUtil.generateToken(userDetails);
+
+            // Authentifier l'utilisateur dans le contexte de sécurité
+            UsernamePasswordAuthenticationToken authentication = new UsernamePasswordAuthenticationToken(
+                    userDetails, null, userDetails.getAuthorities()
+            );
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+
+            // Retourner le JWT et les informations utilisateur
+            return ResponseEntity.ok(Map.of(
+                    "token", jwtToken,
+                    "email", email,
+                    "firstName", firstName,
+                    "lastName", lastName,
+                    "image", user.getImage(), // Utiliser le nom du fichier de l'image stockée
+                    "role", user.getRole().name()
+            ));
+        } catch (Exception e) {
+            e.printStackTrace(); // Afficher l'erreur complète pour le débogage
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Erreur lors de la connexion Google", "details", e.getMessage()));
+        }
+    }
+
+    // Méthode pour télécharger et sauvegarder l'image depuis une URL
+    private String saveImageFromUrl(String imageUrl) {
+        try {
+            URL url = new URL(imageUrl);
+            InputStream inputStream = url.openStream();
+
+            // Créer un nom unique pour l'image
+            String fileName = UUID.randomUUID().toString() + ".jpg"; // Changez l'extension si nécessaire
+            Path destinationPath = Paths.get(uploadDir).resolve(fileName);
+
+            // Créer le dossier si nécessaire
+            File directory = new File(uploadDir);
+            if (!directory.exists()) {
+                directory.mkdirs();
+            }
+
+            Files.copy(inputStream, destinationPath, StandardCopyOption.REPLACE_EXISTING);
+            inputStream.close();
+
+            log.info("Image téléchargée et enregistrée avec succès : {}", destinationPath);
+
+            return fileName; // Retourner le nom du fichier pour l'enregistrer en BD
+        } catch (IOException e) {
+            log.error("Erreur lors du téléchargement de l'image", e);
+            throw new RuntimeException("Erreur lors du téléchargement de l'image", e);
+        }
+    }
+
+
+
+    // Méthode pour générer un mot de passe aléatoire
+    private String generateRandomPassword() {
+        int length = 12; // Longueur du mot de passe
+        String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789!@#$%^&*()-_=+";
+        SecureRandom random = new SecureRandom();
+        StringBuilder password = new StringBuilder();
+        for (int i = 0; i < length; i++) {
+            password.append(chars.charAt(random.nextInt(chars.length())));
+        }
+        return password.toString();
+    }
+
+
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody User user) {
         try {
+            // Vérifier si l'utilisateur existe
+            User userEntity = userRepository.findByEmail(user.getEmail());
+            if (userEntity == null) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                        .body(Map.of("error", "Utilisateur non trouvé"));
+            }
+
+            // Vérifier si l'utilisateur est banni avant de procéder à l'authentification
+            // In your controller where login is handled
+            if (userDetailsServiceImpl.isUserBanned(userEntity)) {
+                Timestamp banEndDate = userDetailsServiceImpl.getBanEndDate(userEntity);
+                return ResponseEntity.status(HttpStatus.FORBIDDEN)
+                        .body(Map.of("message", "Your account is banned until " + banEndDate));
+            }
+
+
+            // Authentification de l'utilisateur si non banni
             authenticationManager.authenticate(
                     new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword())
             );
 
-            UserDetails userDetails = userDetailsService.loadUserByUsername(user.getEmail());
-            String token = jwtUtil.generateToken(userDetails);
+            // Générer un OTP
+            String otp = OTPGenerator.generateOTP();
 
-            return ResponseEntity.ok(Map.of("token", token));
+            // Enregistrer l'OTP dans la base de données
+            userEntity.setOtp(otp);
+            userRepository.save(userEntity);
+
+            // Envoyer l'OTP par e-mail
+            emailService.sendOTPEmail(user.getEmail(), otp);
+
+            // Retourner une réponse indiquant que l'OTP a été envoyé
+            return ResponseEntity.ok(Map.of("message", "OTP envoyé à votre adresse e-mail", "email", user.getEmail()));
+
         } catch (BadCredentialsException e) {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
                     .body(Map.of("error", "Email ou mot de passe incorrect"));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(Map.of("error", "Une erreur interne s'est produite"));
         }
     }
+
 
     private String saveImage(MultipartFile image) {
         // Créer le dossier s'il n'existe pas
@@ -484,8 +683,33 @@ public class AuthController {
         }
     }
 
+    @PostMapping("/verify-otp")
+    public ResponseEntity<?> verifyOTP(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
 
+        if (email == null || otp == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email et OTP sont requis"));
+        }
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "Utilisateur non trouvé"));
+        }
+
+        if (otp.equals(user.getOtp())) {
+            // OTP valide, générer le token JWT
+            UserDetails userDetails = userDetailsService.loadUserByUsername(email);
+            String token = jwtUtil.generateToken(userDetails);
+
+            // Effacer l'OTP après une utilisation réussie
+            user.setOtp(null);
+            userRepository.save(user);
+
+            return ResponseEntity.ok(Map.of("token", token));
+        } else {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "OTP invalide"));
+        }
+    }
 
 }
-
-

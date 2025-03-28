@@ -1,6 +1,7 @@
 package tn.esprit.Services;
 
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import tn.esprit.Exceptions.CustomException;
 import tn.esprit.Repository.*;
@@ -21,6 +22,7 @@ public class RegistrationService  implements IRegistrationService{
     private final RegistrationRepository registrationRepository;
     private final PlanningRepository planningRepository;
     private final UserRepository userRepository;
+    private final SimpMessagingTemplate messagingTemplate;
 
 
     public Registration addRegistration(Registration registration, Long idEvent, Long idUser) {
@@ -52,8 +54,12 @@ public class RegistrationService  implements IRegistrationService{
         registration.setUser(u);
         registration.setRegistrationDate(LocalDateTime.now()); // 🔹 Mettre la date d'aujourd'hui
         registration.setConfirmation(true);
+        Registration savedRegistration = registrationRepository.save(registration);
+        // 🔥 Envoi de la mise à jour via WebSocket
+        long participantCount = registrationRepository.countConfirmedParticipantsByEventId(idEvent);
+        messagingTemplate.convertAndSend("/topic/event/" + idEvent, participantCount);
 
-        return registrationRepository.save(registration);
+        return savedRegistration;
     }
     public Registration updateRegistration(Registration registration) {
 
@@ -66,7 +72,13 @@ public class RegistrationService  implements IRegistrationService{
     }
 
     public void deleteRegistration(Long idRegistration) {
+        Registration r = registrationRepository.findById(idRegistration)
+                .orElseThrow(() -> new CustomException("Événement non trouvé"));
+
+
         registrationRepository.deleteById(idRegistration);
+        long participantCount = registrationRepository.countConfirmedParticipantsByEventId(r.getEvent().getIdEvent());
+        messagingTemplate.convertAndSend("/topic/event/" + r.getEvent().getIdEvent(), participantCount);
 
     }
     public List<Registration> getRegistration() {

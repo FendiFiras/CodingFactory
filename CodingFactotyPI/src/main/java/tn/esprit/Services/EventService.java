@@ -2,6 +2,7 @@ package tn.esprit.Services;
 
 import com.google.zxing.WriterException;
 import lombok.RequiredArgsConstructor;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.*;
 import tn.esprit.entities.*;
@@ -61,8 +62,12 @@ public class EventService implements IEventService{
                 .orElseThrow(() -> new IllegalArgumentException("L'événement avec ID " + eventId + " n'existe pas."));
 
         // Utilisez une URL qui pointe vers une route fonctionnelle dans Angular
-        String qrContent = "http://192.168.1.11:4200/detailseventfront/" + eventId; // Modifiez pour une route existante
+        String qrContent = "http://localhost:4200/detailseventfront/" + eventId; // Modifiez pour une route existante
         return qrCodeService.generateQRCode(qrContent, 300, 300);
+    }
+    // Méthode de recherche multi-critères utilisant le paramètre "s"
+    public List<Event> searchEvents(String s) {
+        return eventRepository.searchEvents(s);
     }
 
 }

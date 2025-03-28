@@ -18,6 +18,7 @@ public interface IEventService {
 
     byte[] generateEventQRCode(Long eventId) throws WriterException, IOException;
 
+    public List<Event> searchEvents(String s);
 
 
     }

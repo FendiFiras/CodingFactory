@@ -8,6 +8,7 @@ import org.springframework.core.io.UrlResource;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.Exceptions.CustomException;
@@ -40,6 +41,8 @@ public class eventController {
     private final IPlanningService planningService;
     private final IRegistrationService registrationService;
     private final FileStorageService fileStorageService;
+
+
     @Value("${file.upload-dir}")
     private String uploadDir;
 
@@ -101,6 +104,7 @@ public class eventController {
                                           @PathVariable Long idUser) {
         try {
             Registration newRegistration = registrationService.addRegistration(registration, idEvent, idUser);
+
             return ResponseEntity.ok(newRegistration);
         } catch (CustomException e) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
@@ -202,6 +206,14 @@ public class eventController {
             return ResponseEntity.notFound().build();
         }
     }
+
+    @GetMapping("/searchevent/{s}")
+    public List<Event> searchEvents(@PathVariable("s") String s) {
+        return eventService.searchEvents(s);
+    }
+
+
+
 
     }
 

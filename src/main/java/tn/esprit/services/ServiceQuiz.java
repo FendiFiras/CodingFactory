@@ -1,6 +1,7 @@
 package tn.esprit.services;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 import org.springframework.web.bind.annotation.PathVariable;
@@ -10,7 +11,9 @@ import tn.esprit.entities.*;
 import tn.esprit.repositories.*;
 
 import java.util.*;
-
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 @Service
 @AllArgsConstructor
 public class ServiceQuiz implements IServiceQuiz {
@@ -23,6 +26,8 @@ public class ServiceQuiz implements IServiceQuiz {
     UserRepo userRepo;
     TrainingRepository trainingRepo;
 
+    @Autowired
+    GeminiService geminiService;
 
     public List<QuizQuestion> getAllQuestion() {
 
@@ -231,6 +236,82 @@ public Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, Lis
     System.out.println("✅ Score final de l'utilisateur : " + totalScore);
     return result;
 }
+
+
+    public Quiz generateQuestionsForExistingQuiz(Long quizId, String topic, int numberOfQuestions) {
+        Quiz quiz = quizRepo.findById(quizId)
+                .orElseThrow(() -> new RuntimeException("❌ Quiz introuvable avec ID : " + quizId));
+
+        String response = geminiService.generateQuizQuestions(topic, numberOfQuestions);
+        System.out.println("✅ Contenu généré par Gemini : \n" + response);
+
+        String correctOption = "";
+        QuizQuestion currentQuestion = null;
+        Set<QuizAnswer> currentAnswers = new HashSet<>();
+        Map<String, QuizAnswer> labelToAnswer = new HashMap<>();
+
+        int questionCount = 0;
+
+        for (String line : response.split("\n")) {
+            line = line.trim();
+
+            // 🎯 Détecter "Question"
+            if (line.toLowerCase().startsWith("question") || line.endsWith("?")) {
+                // ➕ Ajouter la précédente question (si existante)
+                if (currentQuestion != null && !currentAnswers.isEmpty()) {
+                    currentQuestion.setQuizAnswers(currentAnswers);
+                    currentQuestion.setMaxGrade(5);
+                    addQuestionWithAnswers(quizId, currentQuestion, currentAnswers);
+                    System.out.println("📝 Question ajoutée : " + currentQuestion.getQuestionText());
+                    questionCount++;
+                }
+
+                // ➕ Nouvelle question
+                currentQuestion = new QuizQuestion();
+                currentAnswers = new HashSet<>();
+                labelToAnswer = new HashMap<>();
+                currentQuestion.setQuestionText(line.replaceFirst("(?i)^\\*{0,2}\\s*question\\s*\\d*\\:?", "").trim());
+
+            } else if (line.matches("^[A-Da-d]\\).*")) {
+                // ➕ Réponses
+                String label = line.substring(0, 1).toUpperCase();
+                String answerText = line.substring(2).trim();
+
+                QuizAnswer answer = new QuizAnswer();
+                answer.setAnswerText(answerText.length() > 950 ? answerText.substring(0, 950) : answerText);
+                answer.setCorrect(false);
+
+                currentAnswers.add(answer);
+                labelToAnswer.put(label, answer);
+                System.out.println("➕ Réponse " + label + ": " + answerText);
+
+            } else if (line.toLowerCase().startsWith("answer:")) {
+                correctOption = line.replaceFirst("(?i)answer:", "").trim().substring(0, 1).toUpperCase();
+                QuizAnswer correctAnswer = labelToAnswer.get(correctOption);
+                if (correctAnswer != null) {
+                    correctAnswer.setCorrect(true);
+                    System.out.println("✅ Réponse correcte : " + correctAnswer.getAnswerText());
+                }
+            }
+        }
+
+        // 📝 Dernière question à sauvegarder
+        if (currentQuestion != null && !currentAnswers.isEmpty()) {
+            currentQuestion.setQuizAnswers(currentAnswers);
+            currentQuestion.setMaxGrade(5);
+            addQuestionWithAnswers(quizId, currentQuestion, currentAnswers);
+            questionCount++;
+        }
+
+        // 🧮 Mise à jour du maxGrade global
+        quiz.setMaxGrade(quizRepo.findById(quizId).get().getQuizQuestions().size() * 5);
+        quiz = quizRepo.save(quiz);
+
+        System.out.println("🎯 Total des questions ajoutées : " + questionCount);
+        return quiz;
+    }
+
+
 
 /**
 

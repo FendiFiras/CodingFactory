@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.Quiz;
 import tn.esprit.entities.QuizAnswer;
 import tn.esprit.entities.QuizQuestion;
+import tn.esprit.services.GeminiService;
 import tn.esprit.services.ServiceQuiz;
 
 import java.util.HashMap;
@@ -19,6 +20,8 @@ public class QuizController {
 
     @Autowired
     private ServiceQuiz serviceQuiz;
+    @Autowired
+    private GeminiService geminiService;
 
 
     @PostMapping("/add_quiz")
@@ -111,6 +114,38 @@ public class QuizController {
         Map<String, Object> result = serviceQuiz.submitAndCalculateScore(userId, quizId, selectedAnswers);
         return ResponseEntity.ok(result);
     }
+
+
+
+
+
+
+
+
+
+
+
+
+
+    @PostMapping("/generate")
+    public String generateQuiz(@RequestParam String topic, @RequestParam int numberOfQuestions) {
+        return geminiService.generateQuizQuestions(topic, numberOfQuestions);
+    }
+
+
+    @PostMapping("/generate-questions/{quizId}")
+    public ResponseEntity<Quiz> generateQuestions(
+            @PathVariable Long quizId,
+            @RequestParam String topic,
+            @RequestParam int numberOfQuestions) {
+
+        Quiz updatedQuiz = serviceQuiz.generateQuestionsForExistingQuiz(quizId, topic, numberOfQuestions);
+        return ResponseEntity.ok(updatedQuiz);
+    }
+
+
+
+
 
 }
 

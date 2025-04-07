@@ -6,6 +6,7 @@ import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.Quiz;
 import tn.esprit.entities.QuizAnswer;
 import tn.esprit.entities.QuizQuestion;
+import tn.esprit.entities.User;
 import tn.esprit.services.GeminiService;
 import tn.esprit.services.ServiceQuiz;
 
@@ -144,7 +145,10 @@ public class QuizController {
     }
 
 
-
+    @GetMapping("/users/{idQuiz}")
+    public List<User> getUsersByQuizId(@PathVariable Long idQuiz) {
+        return serviceQuiz.getUsersByQuizId(idQuiz);
+    }
 
 
 }

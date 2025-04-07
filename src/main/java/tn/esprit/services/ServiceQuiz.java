@@ -310,7 +310,9 @@ public Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, Lis
         System.out.println("🎯 Total des questions ajoutées : " + questionCount);
         return quiz;
     }
-
+    public List<User> getUsersByQuizId(Long idQuiz) {
+        return quizRepo.findUsersByQuizId(idQuiz);
+    }
 
 
 /**

@@ -1,9 +1,6 @@
 package tn.esprit.services;
 
-import tn.esprit.entities.Quiz;
-import tn.esprit.entities.QuizAnswer;
-import tn.esprit.entities.QuizQuestion;
-import tn.esprit.entities.Training;
+import tn.esprit.entities.*;
 
 import java.util.List;
 import java.util.Map;
@@ -23,5 +20,7 @@ public interface IServiceQuiz {
     Set<QuizQuestion> getQuestionsByQuiz(Long quizId);
     List<Quiz> getQuizzesByTraining(Long trainingId);
    // void submitQuizResponses(Long userId, Long quizId, List<Long> selectedAnswers);
-    Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, List<Long> selectedAnswers);    //boolean calculateQuizScore(Long quizId, Long userId);
+    Map<String, Object> submitAndCalculateScore(Long userId, Long quizId, List<Long> selectedAnswers);
+    //boolean calculateQuizScore(Long quizId, Long userId);
+    List<User> getUsersByQuizId(Long idQuiz);
 }

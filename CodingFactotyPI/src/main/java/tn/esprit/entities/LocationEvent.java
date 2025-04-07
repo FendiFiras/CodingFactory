@@ -1,7 +1,10 @@
 package tn.esprit.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.*;
 
+import java.util.List;
 import java.util.Set;
 
 @Entity
@@ -26,9 +29,10 @@ public class LocationEvent {
 
 
 
-
+@JsonIgnore
     @OneToMany(cascade= CascadeType.ALL, mappedBy="locationEvent")
-    private Set<Planning> Plannings;
+
+private List<Planning> Plannings;
 }
 
 

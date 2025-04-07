@@ -30,12 +30,13 @@ public class Planning {
     private String video;
     @Enumerated(EnumType.STRING)
     private LocationType locationType;
-    @ManyToOne
-    @JsonBackReference
 
+    @ManyToOne
     Event event;
+
     @ManyToOne
     LocationEvent locationEvent;
+
 
 
 }

@@ -1,18 +1,23 @@
 package tn.esprit.Services;
 
+import jakarta.persistence.EntityNotFoundException;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.flogger.Flogger;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import tn.esprit.Repository.*;
 import tn.esprit.entities.Event;
 import tn.esprit.entities.FeedBackEvent;
 import tn.esprit.entities.LocationEvent;
 import tn.esprit.entities.Planning;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 
 import java.util.List;
 
 @RequiredArgsConstructor
 @Service
-
 public class PlanningService  implements IPlanningService {
     private final EventRepository eventRepository;
     private final FeedBackRepository feedBackEventRepository;
@@ -22,26 +27,29 @@ public class PlanningService  implements IPlanningService {
     private final RegistrationRepository registrationRepository;
 
 
-    public Planning addPlanning(Planning planning,Long idEvent,Long idLocationEvent) {
+    public Planning addPlanning(Planning planning, Long idEvent, Long idLocationEvent) {
+        Event e = eventRepository.findById(idEvent)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + idEvent));
 
-        Event e=eventRepository.getById(idEvent);
         if (idLocationEvent != 0) {
-
-            LocationEvent l = locationEventRepository.getById(idLocationEvent);
+            LocationEvent l = locationEventRepository.findById(idLocationEvent)
+                    .orElseThrow(() -> new EntityNotFoundException("LocationEvent not found with ID: " + idLocationEvent));
             planning.setLocationEvent(l);
-
         }
 
         planning.setEvent(e);
         return planningRepository.save(planning);
-
     }
+
     public Planning updatePlanning(Planning planning,Long idEvent,Long idLocationEvent) {
-      if(idLocationEvent!=0) {
-          LocationEvent l = locationEventRepository.getById(idLocationEvent);
-          planning.setLocationEvent(l);
-      }
-        Event e = eventRepository.getById(idEvent);
+        Event e = eventRepository.findById(idEvent)
+                .orElseThrow(() -> new EntityNotFoundException("Event not found with ID: " + idEvent));
+
+        if (idLocationEvent != 0) {
+            LocationEvent l = locationEventRepository.findById(idLocationEvent)
+                    .orElseThrow(() -> new EntityNotFoundException("LocationEvent not found with ID: " + idLocationEvent));
+            planning.setLocationEvent(l);
+        }
         planning.setEvent(e);
         return planningRepository.save(planning);
 

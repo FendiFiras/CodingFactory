@@ -13,10 +13,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.Exceptions.CustomException;
 import tn.esprit.Services.*;
-import tn.esprit.entities.Event;
-import tn.esprit.entities.FeedBackEvent;
-import tn.esprit.entities.Planning;
-import tn.esprit.entities.Registration;
+import tn.esprit.entities.*;
 
 import java.io.IOException;
 import java.nio.file.Path;
@@ -187,7 +184,14 @@ public class eventController {
         planningService.deletePlanning(id);
         return ResponseEntity.noContent().build();
     }
+    @GetMapping("/getplanning/{id}")
+    public ResponseEntity<Planning> getPlanning(@PathVariable Long id) {
 
+            Planning planning = planningService.retrievePlanning(id);
+            return ResponseEntity.ok(planning);
+
+
+    }
 
     @PutMapping("/updateplanning/{idEvent}/{idLocationEvent}")
     public Planning updatePlanning(@RequestBody Planning planning,@PathVariable Long idEvent, @PathVariable Long idLocationEvent) {
@@ -214,7 +218,40 @@ public class eventController {
 
 
 
+    // ✅ Ajouter une location
+    @PostMapping("/addlocation")
+    public ResponseEntity<LocationEvent> addLocation(@RequestBody LocationEvent locationEvent) {
+        LocationEvent savedLocation = locationEventService.addLocationEvent(locationEvent);
+        return ResponseEntity.ok(savedLocation);
+    }
 
+    // ✅ Mettre à jour une location
+    @PutMapping("/updatelocation")
+    public ResponseEntity<LocationEvent> updateLocation(@RequestBody LocationEvent locationEvent) {
+        LocationEvent updatedLocation = locationEventService.updateLocationEvent(locationEvent);
+        return ResponseEntity.ok(updatedLocation);
+    }
+
+    // ✅ Récupérer une location par ID
+    @GetMapping("/getlocation/{id}")
+    public ResponseEntity<LocationEvent> getLocationById(@PathVariable Long id) {
+        LocationEvent locationEvent = locationEventService.retrieveLocationEvent(id);
+        return ResponseEntity.ok(locationEvent);
+    }
+
+    // ✅ Supprimer une location
+    @DeleteMapping("/deletelocation/{id}")
+    public ResponseEntity<Void> deleteLocation(@PathVariable Long id) {
+        locationEventService.deleteLocationEvent(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // ✅ Récupérer toutes les locations
+    @GetMapping("/alllocation")
+    public ResponseEntity<List<LocationEvent>> getAllLocations() {
+        List<LocationEvent> locations = locationEventService.getLocationEvent();
+        return ResponseEntity.ok(locations);
+    }
     }
 
 

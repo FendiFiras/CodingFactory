@@ -45,9 +45,9 @@ public class Event {
     @JsonIgnore
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
-    @JsonManagedReference
 
     private List<Planning> Plannings;
+    @JsonIgnore
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
     private List<Notification>notifications;
@@ -58,6 +58,8 @@ public class Event {
       @JsonIgnore
     @OneToMany(cascade= CascadeType.ALL, mappedBy="event")
     private List<FeedBackEvent>feedBackEvents;
+    @JsonIgnore
+
     @OneToMany(cascade = CascadeType.ALL)
     private List<Payment> payemnts;
 

@@ -17,8 +17,15 @@ import tn.esprit.services.IOfferService;
 import tn.esprit.services.IApplicationService;
 
 import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
 import java.util.Optional;
+import java.util.Set;
+import java.util.UUID;
+
 @RestController
 @RequestMapping("/applications")
 @CrossOrigin(origins = "http://localhost:4200") // Allow requests from Angular app
@@ -53,7 +60,14 @@ public class ApplicationController {
         }
     }
 
-
+    @GetMapping("/by-user/{userId}")
+    public ResponseEntity<Set<Application>> getApplicationsByUserId(@PathVariable Long userId) {
+        Set<Application> applications = applicationService.getApplicationsByStudent(userId);
+        if (applications.isEmpty()) {
+            return ResponseEntity.noContent().build();
+        }
+        return ResponseEntity.ok(applications);
+    }
     @GetMapping("/user/{applicationId}")
     public ResponseEntity<Long> getUserIdByApplicationId(@PathVariable Long applicationId) {
         try {
@@ -70,9 +84,13 @@ public class ApplicationController {
     }
 
     @GetMapping("/student/{userId}")
-    public ResponseEntity<List<Application>> getApplicationsByStudent(@PathVariable Long userId) {
-        List<Application> applications = applicationService.getApplicationsByStudent(userId);
+    public ResponseEntity<Set<Application>> getApplicationsByStudent(@PathVariable Long userId) {
+        Set<Application> applications = applicationService.getApplicationsByStudent(userId);
+        if (applications.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+        }
         return ResponseEntity.ok(applications);
+
     }
 
 
@@ -99,5 +117,44 @@ public class ApplicationController {
     public ResponseEntity<Void> deleteApplication(@PathVariable Long id) {
         applicationService.deleteApplication(id);
         return ResponseEntity.noContent().build();
+    }
+
+    @GetMapping("/application/{id}/applicant-name")
+    public ResponseEntity<String> getApplicantName(@PathVariable Long id) {
+        String fullName = applicationService.getApplicantFullName(id);
+        return ResponseEntity.ok(fullName);
+    }
+    @PostMapping("/upload-cv")
+    public ResponseEntity<String> uploadCv(@RequestParam("cvFile") MultipartFile file) {
+        if (file.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body("No file uploaded.");
+        }
+
+        // Check if the file is a PDF
+        if (!file.getContentType().equals("application/pdf")) {
+            return ResponseEntity.badRequest().body("Only PDF files are allowed.");
+        }
+
+        try {
+            // Define the upload directory (in the project's root folder)
+            String uploadDir = "uploads/cvs";
+            Path uploadPath = Paths.get(uploadDir);
+            if (!Files.exists(uploadPath)) {
+                Files.createDirectories(uploadPath);
+            }
+
+            // Generate a unique filename
+            String originalFilename = file.getOriginalFilename();
+
+            // Store the file
+            Path filePath = uploadPath.resolve(originalFilename);
+            Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+
+            // Return success message with the filename
+            return ResponseEntity.ok("File uploaded successfully: " + originalFilename);
+        } catch (IOException e) {
+            e.printStackTrace();
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error uploading file.");
+        }
     }
 }

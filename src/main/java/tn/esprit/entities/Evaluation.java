@@ -1,5 +1,7 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -16,6 +18,13 @@ public class Evaluation {
     private Long idEvaluation;
     private float score;
     private String comment;
+    @Lob
+    @Column(length = 16777215) // For MySQL compatibility// Large Object to store binary data
+    private byte[] evaluationPdf;
+
+    @OneToOne(mappedBy = "evaluation")
+    @JsonBackReference  // Child side, prevents recursion
+    private Assignment assignment;
 
 
 

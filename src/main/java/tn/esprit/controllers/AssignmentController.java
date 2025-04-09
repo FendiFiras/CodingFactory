@@ -7,18 +7,23 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.Assignment;
 import tn.esprit.entities.Offer;
+import tn.esprit.repositories.AssignmentRepository;
 import tn.esprit.services.IAssignmentService;
 
+import java.util.Collections;
 import java.util.List;
 import java.util.Map;
-@CrossOrigin(origins = "http://localhost:4200") // Allow requests from Angular app
 @RestController
 @RequestMapping("/assignments")
+@CrossOrigin(origins = "*")  // Allow frontend requests
+
 @RequiredArgsConstructor
 
 public class AssignmentController {
 
+    @Autowired
 
+    private AssignmentRepository assignmentRepository;
     private final IAssignmentService assignmentService;
 
     // Create an assignment for a user
@@ -38,10 +43,19 @@ public class AssignmentController {
                     .body(Map.of("error", e.getMessage()));
         }
     }
-    @PostMapping("/by-offer")
-    public ResponseEntity<List<Assignment>> getAssignmentsByOffer(@RequestBody Offer offer) {
-        List<Assignment> assignments = assignmentService.getAssignmentsByOffer(offer);
-        return ResponseEntity.ok(assignments);
+    @GetMapping("/{id}")
+    public ResponseEntity<Assignment> getAssignmentById(@PathVariable Long id) {
+        return assignmentRepository.findById(id)
+                .map(ResponseEntity::ok)
+                .orElseGet(() -> ResponseEntity.notFound().build());
+    }
+    @GetMapping("/by-offer/{offerId}")
+    public List<Assignment> getAssignmentsByOffer(@PathVariable Long offerId) {
+        if (offerId == null) {
+            // Handle null value, maybe return empty list or an error message
+            return Collections.emptyList();
+        }
+        return assignmentRepository.findByOfferIdWithEvaluation(offerId);
     }
     @GetMapping("/by-user/{userId}")
     public ResponseEntity<?> getAssignmentByUserId(@PathVariable Long userId) {
@@ -83,5 +97,18 @@ public class AssignmentController {
     public ResponseEntity<Void> deleteAssignment(@PathVariable Long assignmentId) {
         assignmentService.deleteAssignment(assignmentId);
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+    }
+
+
+    @GetMapping("/{id}/user-name")
+    public ResponseEntity<String> getUserFullName(@PathVariable("id") Long assignmentId) {
+        String name = assignmentService.getUserFullName(assignmentId);
+        return ResponseEntity.ok(name);
+    }
+
+    @GetMapping("/{id}/offer-title")
+    public ResponseEntity<String> getOfferTitle(@PathVariable("id") Long assignmentId) {
+        String title = assignmentService.getOfferTitle(assignmentId);
+        return ResponseEntity.ok(title);
     }
 }

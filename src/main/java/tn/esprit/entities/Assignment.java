@@ -1,6 +1,8 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -31,8 +33,9 @@ public class Assignment {
     @JsonIgnore
     private Offer offer;
 
-   
-    @OneToOne
-    private Evaluation evaluation;
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "evaluation_id_evaluation")
+    @JsonManagedReference  // Parent side
+    private Evaluation evaluation;
 }

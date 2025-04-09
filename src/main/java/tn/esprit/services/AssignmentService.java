@@ -1,6 +1,9 @@
 package tn.esprit.services;
 
+import jakarta.persistence.EntityNotFoundException;
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.mail.MailException;
 import org.springframework.stereotype.Service;
 import tn.esprit.entities.*;
 import tn.esprit.repositories.ApplicationRepository;
@@ -22,39 +25,50 @@ public class AssignmentService implements IAssignmentService {
     private  OfferRepository offerRepository;
     @Autowired
     private  ApplicationRepository applicationRepository;
-
+    @Autowired
+    private  EmailService emailService;
 
     //eate an assignment for a specific user
     @Override
     public Assignment createAssignment(Long userId, Long offerId, Assignment assignment) {
-        // Fetch the user (student) by userId
+        // Existing code remains unchanged
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
 
-        // Fetch the offer by offerId
         Offer offer = offerRepository.findById(offerId)
                 .orElseThrow(() -> new RuntimeException("Offer not found with id: " + offerId));
 
-        // Find the application made by the student for the specific offer
         Application application = user.getApplications().stream()
                 .filter(app -> app.getOffer().getIdOffer().equals(offerId))
                 .findFirst()
-                .orElseThrow(() -> new RuntimeException("Application not found for the specified user and offer"));
+                .orElseThrow(() -> new RuntimeException("Application not found"));
 
-        // Update the status of the application to "Affected"
         application.setStatus("Affected");
         applicationRepository.save(application);
 
-        // Set the user and offer in the assignment
         assignment.setUser(user);
         assignment.setOffer(offer);
 
-        // Save the assignment
         Assignment savedAssignment = assignmentRepository.save(assignment);
 
-        // Set the assignment in the user (if needed)
         user.setAssignment(savedAssignment);
         userRepository.save(user);
+
+        // ********** MAILING LOGIC START **********
+        try {
+            if(savedAssignment.getUser() != null && savedAssignment.getOffer() != null) {
+                emailService.sendAssignmentNotification(
+                        savedAssignment.getUser(),
+                        savedAssignment.getOffer(),
+                        savedAssignment
+                );
+                // Optional: Add logging for success
+            }
+        } catch (Exception e) {
+            // Handle email exception without breaking the flow
+
+        }
+        // ********** MAILING LOGIC END **********
 
         return savedAssignment;
     }
@@ -67,6 +81,10 @@ public class AssignmentService implements IAssignmentService {
     @Override
     public List<Assignment> getAssignmentsByOffer(Offer offer) {
         return assignmentRepository.findByOffer(offer);
+    }
+    @Override
+    public List<Assignment> getAssignmentsByOffer(Long offerId) {
+        return assignmentRepository.findAssignmentsByOfferId(offerId);
     }
     @Override
     public List<Assignment> getAllAssignments() {
@@ -110,5 +128,12 @@ public class AssignmentService implements IAssignmentService {
 
         // Delete the assignment
         assignmentRepository.delete(assignment);
+    }
+    public String getUserFullName(Long assignmentId) {
+        return assignmentRepository.findUserFullNameByAssignmentId(assignmentId);
+    }
+
+    public String getOfferTitle(Long assignmentId) {
+        return assignmentRepository.findOfferTitleByAssignmentId(assignmentId);
     }
 }

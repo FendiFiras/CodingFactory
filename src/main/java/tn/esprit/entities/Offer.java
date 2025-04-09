@@ -24,7 +24,7 @@ public class Offer {
     private String requiredSkill;
     private String Location;
     private String duration;
-
+    private int appnmbr;
     private String EmploymentType;
     private String JobResponsibilities;
     private String WhatWeOffer;

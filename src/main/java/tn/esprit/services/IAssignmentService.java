@@ -11,6 +11,7 @@ public interface IAssignmentService {
     public Assignment createAssignment(Long userId, Long offerId, Assignment assignment);
     public Assignment getAssignmentByUserId(Long userId);
     public List<Assignment> getAssignmentsByOffer(Offer offer);
+    public List<Assignment> getAssignmentsByOffer(Long offerId);
 
     // Get all assignments
     List<Assignment> getAllAssignments();
@@ -23,4 +24,7 @@ public interface IAssignmentService {
 
     // Delete an assignment
     void deleteAssignment(Long assignmentId);
-}
+    public String getUserFullName(Long assignmentId) ;
+    public String getOfferTitle(Long assignmentId) ;
+
+    }

@@ -15,8 +15,18 @@ import java.util.Optional;
 public interface ApplicationRepository extends JpaRepository<Application, Long> {
 
     List<Application> findByOfferIn(List<Offer> offers);
+
     List<Application> findByOffer(Offer offer);
 
     @Query("SELECT u.idUser FROM User u JOIN u.applications a WHERE a.idApplication = :applicationId")
     Long findUserIdByApplicationId(@Param("applicationId") Long applicationId);
+
+    @Query(value = "SELECT u.first_name, u.last_name " +
+            "FROM user_applications ua " +
+            "JOIN user u ON ua.user_id_user = u.id_user " +
+            "WHERE ua.applications_id_application = :applicationId", nativeQuery = true)
+    List<Object[]> findUserNameByApplicationId(@Param("applicationId") Long applicationId);
+
+
+
 }

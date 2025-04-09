@@ -37,9 +37,20 @@ public class OfferService implements IOfferService {
         // Set the partnership in the offer from the user's partnership
         offer.setPartnership(user.getPartnership());
 
+        // Ensure that required skills are properly handled as a comma-separated string
+        if (offer.getRequiredSkill() != null && !offer.getRequiredSkill().isEmpty()) {
+            // Convert the requiredSkills list (if any) into a comma-separated string
+            offer.setRequiredSkill(String.join(",", offer.getRequiredSkill()));
+        } else {
+            offer.setRequiredSkill("");  // Ensure the field is not null if empty
+        }
+
         // Save the offer
         return offerRepository.save(offer);
     }
+
+
+
     @Override
     public List<Offer> getAllOffers() {
         return offerRepository.findAll();

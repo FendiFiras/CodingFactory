@@ -2,8 +2,10 @@ package tn.esprit.services;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import tn.esprit.entities.Assignment;
 import tn.esprit.entities.Evaluation;
 import tn.esprit.entities.User;
+import tn.esprit.repositories.AssignmentRepository;
 import tn.esprit.repositories.EvaluationRepository;
 import tn.esprit.repositories.UserRepo;
 
@@ -18,29 +20,34 @@ public class EvaluationService implements IEvaluationService {
     @Autowired
     private UserRepo userRepository;
 
+    @Autowired
+    private AssignmentRepository assignmentRepository;
+
     // Create an evaluation for a specific user
     @Override
-    public Evaluation createEvaluation(Long userId, Evaluation evaluation) {
-        // Fetch the user (student) by userId
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
+    public Evaluation createEvaluation(Long assignmentId, Evaluation evaluation) {
+        // Fetch the assignment by ID
+        Assignment assignment = assignmentRepository.findById(assignmentId)
+                .orElseThrow(() -> new RuntimeException("Assignment not found with id: " + assignmentId));
 
-        // Check if the user has an assignment
-        if (user.getAssignment() == null) {
-            throw new RuntimeException("User is not affected. Cannot create evaluation.");
+        // Ensure the assignment does not already have an evaluation (if needed)
+        if (assignment.getEvaluation() != null) {
+            throw new RuntimeException("This assignment already has an evaluation.");
         }
 
-        // Save the evaluation first to generate its ID
+        // Link the evaluation to the assignment
+        evaluation.setAssignment(assignment);
+
+        // Save the evaluation
         Evaluation savedEvaluation = evaluationRepository.save(evaluation);
 
-        // Set the evaluation in the user
-        user.setEvaluation(savedEvaluation);
-
-        // Save the user (which will update the foreign key reference)
-        userRepository.save(user);
+        // Update the assignment with the new evaluation
+        assignment.setEvaluation(savedEvaluation);
+        assignmentRepository.save(assignment);
 
         return savedEvaluation;
     }
+
     // Get all evaluations
     @Override
 

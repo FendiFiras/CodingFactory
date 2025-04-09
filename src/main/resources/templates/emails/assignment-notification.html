@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Assignment Notification</title>
+</head>
+<body>
+<div style="max-width: 600px; margin: 0 auto;">
+    <h2 style="color: #2c3e50;">New Assignment Notification</h2>
+
+    <p>Hello <span th:text="${user.firstName}"></span>,</p>
+
+    <p>You've been assigned to:</p>
+
+    <div style="background: #f8f9fa; padding: 15px; border-radius: 5px;">
+        <h3 th:text="${offer.title}"></h3>
+        <p>Congrates You are affaected for the Intership Offer
+
+        </p>
+    </div>
+
+    <p style="margin-top: 20px;">
+        Best regards,<br>
+        The Placement Team
+    </p>
+</div>
+</body>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        .container { max-width: 600px; margin: 20px auto; padding: 20px; }
+        .header { color: #2c3e50; border-bottom: 2px solid #eee; padding-bottom: 10px; }
+        .content { margin: 20px 0; padding: 15px; background: #f8f9fa; border-radius: 5px; }
+    </style>
+</head>
+<body>
+<div class="container">
+    <h2 class="header">Evaluation Results</h2>
+    <div class="content">
+        <p>Dear <span th:text="${studentName}"></span>,</p>
+        <p>Your evaluation results are ready:</p>
+        <p><strong>Score:</strong> <span th:text="${score}"></span>/5</p>
+        <p><strong>Comments:</strong></p>
+        <p th:text="${comment}"></p>
+    </div>
+    <p>Find your detailed evaluation report attached to this email.</p>
+    <p>Best regards,<br>The Evaluation Team</p>
+</div>
+</body>
+</html>

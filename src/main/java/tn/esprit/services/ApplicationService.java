@@ -7,10 +7,7 @@ import tn.esprit.repositories.ApplicationRepository;
 import tn.esprit.repositories.OfferRepository;
 import tn.esprit.repositories.UserRepo;
 
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-import java.util.Optional;
+import java.util.*;
 
 @Service
 @RequiredArgsConstructor
@@ -71,18 +68,9 @@ public Long getUserIdByApplicationId(Long applicationId) {
         return applicationRepository.findAll();
     }
     @Override
-    public List<Application> getApplicationsByStudent(Long userId) {
+    public Set<Application> getApplicationsByStudent(Long userId) {
         // Fetch the user by userId
-        User user = userRepository.findById(userId)
-                .orElseThrow(() -> new RuntimeException("User not found with id: " + userId));
-
-        // Check if the user's role is STUDENT
-        if (!user.getRole().equals(Role.STUDENT)) {
-            throw new RuntimeException("Only users with the role STUDENT can access applications");
-        }
-
-        // Fetch all applications associated with the user
-        return new ArrayList<>(user.getApplications());
+        return userRepository.findApplicationsByUserId(userId);
     }
     @Override
     public List<Application> getApplicationsForCompanyRepresentative(Long userId) {
@@ -143,5 +131,14 @@ public Long getUserIdByApplicationId(Long applicationId) {
     @Override
     public void deleteApplication(Long id) {
         applicationRepository.deleteById(id);
+    }
+
+    public String getApplicantFullName(Long applicationId) {
+        List<Object[]> result = applicationRepository.findUserNameByApplicationId(applicationId);
+        if (!result.isEmpty()) {
+            Object[] row = result.get(0);
+            return row[0] + " " + row[1]; // firstName + lastName
+        }
+        return null;
     }
 }

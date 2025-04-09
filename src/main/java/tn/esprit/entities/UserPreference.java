@@ -12,7 +12,6 @@ public class UserPreference {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idPreference;
-
     private String theme;
     private String language;
     private Boolean notificationEnabled;

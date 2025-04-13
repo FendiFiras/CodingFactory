@@ -1,6 +1,8 @@
 package tn.esprit.entities;
+
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
-import  lombok.*;
+import lombok.*;
 
 import java.util.Date;
 import java.util.Set;
@@ -13,8 +15,6 @@ import java.util.Set;
 public class Quiz {
 
 
-
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idQuiz;
@@ -24,13 +24,18 @@ public class Quiz {
     private int timeLimit;
     private int maxGrade;
 
-    @OneToOne (mappedBy="Quiz")
+
+    @JsonIgnore
+    @OneToOne(mappedBy = "Quiz")
     private Training training;
     @OneToMany(cascade = CascadeType.ALL)
-    private Set<QuizQuestion> QuizQuestions;
-    @OneToMany(cascade= CascadeType.ALL, mappedBy="quiz")
-    private Set<StudentResponse> studentResponses;
+    @JsonIgnore
 
+    private Set<QuizQuestion> QuizQuestions;
+    @JsonIgnore
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "quiz")
+    private Set<Response> studentResponses;
 
 
 }

@@ -59,12 +59,7 @@ public class User {
     private Role role;
 
 
-    @ManyToMany(mappedBy = "Users", cascade = CascadeType.ALL)
-    private Set<Training> trainings;
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<Quiz> Quizs;
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<StudentResponse> studentResponses;
+
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
     private UserPreference userPreference;
@@ -126,6 +121,13 @@ public class User {
     @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
     private List<Registration>registrations;
 
+    //Traning
+    @ManyToMany(mappedBy = "Users")
+    private Set<Training> trainings;
+    @ManyToMany(cascade = CascadeType.ALL)
+    private Set <Quiz> quizss;
 
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Response> studentResponses;
 
 }

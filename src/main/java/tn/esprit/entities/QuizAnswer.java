@@ -17,6 +17,8 @@ public class QuizAnswer {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idQuizA;
+    @Column(length = 1000) // ou même 2000 selon la taille que tu prévois
+
     private String answerText;
     private boolean isCorrect;
 }

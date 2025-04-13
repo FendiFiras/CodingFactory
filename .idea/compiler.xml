@@ -7,7 +7,7 @@
         <sourceOutputDir name="target/generated-sources/annotations" />
         <sourceTestOutputDir name="target/generated-test-sources/test-annotations" />
         <outputRelativeToContentRoot value="true" />
-        <module name="codingfactoryPI" />
+        <module name="MicroSeriviceTraining" />
       </profile>
     </annotationProcessing>
     <bytecodeTargetLevel>
@@ -17,8 +17,8 @@
   <component name="JavacSettings">
     <option name="ADDITIONAL_OPTIONS_OVERRIDE">
       <module name="CodingFactoryPi" options="-parameters" />
+      <module name="MicroSeriviceTraining" options="-parameters" />
       <module name="TrainingMicroService" options="-parameters" />
-      <module name="codingfactoryPI" options="-parameters" />
     </option>
   </component>
 </project>

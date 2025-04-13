@@ -70,4 +70,6 @@ public class EventService implements IEventService{
         return eventRepository.searchEvents(s);
     }
 
+
+
 }

@@ -1,5 +1,6 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import java.sql.Timestamp;
 import lombok.*;
@@ -8,7 +9,7 @@ import lombok.*;
 @Setter
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserBanLog {
+public class BanLog {
 
 
     @Id
@@ -21,7 +22,8 @@ public class UserBanLog {
 
     @Enumerated(EnumType.STRING)
     private Status status;
-    @ManyToOne
+    @ManyToOne(fetch = FetchType.EAGER)
+    @JsonIgnoreProperties("banLogs") // Ignore la liste des BanLogs dans l'utilisateur pour éviter la boucle infinie
     private User user;
 
 

@@ -7,6 +7,7 @@ import org.springframework.core.io.ByteArrayResource;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.io.ByteArrayInputStream;
 
@@ -91,6 +92,35 @@ public class ServiceMail {
                 + "</div>";
     }
 
+    public void sendCheatingReportWithAttachment(String toEmail, String quizTitle, MultipartFile pdfFile) {
+        try {
+            MimeMessage message = mailSender.createMimeMessage();
+            MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+            helper.setTo(toEmail);
+            helper.setSubject("🚨 Comportement suspect détecté - " + quizTitle);
+
+            String htmlContent = "<div style='font-family: Arial, sans-serif; padding: 20px;'>"
+                    + "<h2 style='color: #d9534f;'>🚨 Rapport de Triche</h2>"
+                    + "<p>Bonjour,</p>"
+                    + "<p>Un comportement suspect a été détecté lors du quiz <strong>\"" + quizTitle + "\"</strong>.</p>"
+                    + "<p>Veuillez trouver en pièce jointe le rapport détaillé généré automatiquement par le système.</p>"
+                    + "<p style='color: #555;'>Merci de prendre les mesures appropriées si nécessaire.</p>"
+                    + "<br><p style='font-size: 14px; color: #999;'>— Système Anti-Triche • CodingFactory</p>"
+                    + "</div>";
+
+            helper.setText(htmlContent, true);
+
+            helper.addAttachment("Cheating_Report.pdf", new ByteArrayResource(pdfFile.getBytes()));
+
+            mailSender.send(message);
+            System.out.println("📤 Rapport de triche envoyé à " + toEmail);
+
+        } catch (Exception e) {
+            System.err.println("❌ Erreur lors de l'envoi du rapport de triche : " + e.getMessage());
+            throw new RuntimeException("Échec de l'envoi de l'email de rapport de triche", e);
+        }
+    }
 
 
 }

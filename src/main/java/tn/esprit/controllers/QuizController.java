@@ -1,19 +1,17 @@
 package tn.esprit.controllers;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
-import tn.esprit.entities.Quiz;
-import tn.esprit.entities.QuizAnswer;
-import tn.esprit.entities.QuizQuestion;
-import tn.esprit.entities.User;
+import org.springframework.web.multipart.MultipartFile;
+import tn.esprit.entities.*;
+import tn.esprit.repositories.QuizRepo;
 import tn.esprit.services.GeminiService;
+import tn.esprit.services.ServiceMail;
 import tn.esprit.services.ServiceQuiz;
 
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @RestController
 @RequestMapping("/Quizs")
@@ -23,6 +21,10 @@ public class QuizController {
     private ServiceQuiz serviceQuiz;
     @Autowired
     private GeminiService geminiService;
+    @Autowired
+    QuizRepo quizRepo;
+    @Autowired
+    ServiceMail serviceMail;
 
 
     @PostMapping("/add_quiz")
@@ -150,8 +152,42 @@ public class QuizController {
         return serviceQuiz.getUsersByQuizId(idQuiz);
     }
 
+    @PostMapping("/api/cheating/report")
+    public ResponseEntity<String> sendCheatingReportToInstructor(
+            @RequestParam("file") MultipartFile file,
+            @RequestParam("quizId") Long quizId) {
+        System.out.println("✅ Requête reçue pour le quiz ID : " + quizId);
+        System.out.println("📄 Fichier reçu : " + file.getOriginalFilename() + " (" + file.getSize() + " octets)");
+        Quiz quiz = quizRepo.findById(quizId).orElse(null);
+        if (quiz == null || quiz.getTraining() == null) {
+            return ResponseEntity.badRequest().body("Quiz or training not found");
+        }
+
+        Training training = quiz.getTraining();
+        Optional<User> instructorOpt = training.getUsers().stream()
+                .filter(u -> u.getRole() == Role.INSTRUCTOR)
+                .findFirst();
+
+        if (instructorOpt.isPresent()) {
+            User instructor = instructorOpt.get();
+            serviceMail.sendCheatingReportWithAttachment(
+                    instructor.getEmail(),
+                    quiz.getQuizName(),
+                    file
+            );
+            return ResponseEntity.ok("Report sent to instructor");
+        } else {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("Instructor not found for this training");
+        }
+    }
 
 }
+
+
+
+
+
+
 
 
 /**

@@ -6,7 +6,9 @@ import tn.esprit.entities.Role;
 import tn.esprit.entities.User;
 import tn.esprit.Repository.UserRepository;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @AllArgsConstructor
 @Service

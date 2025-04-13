@@ -7,4 +7,6 @@ import tn.esprit.entities.UserPreference;
 @Repository
 public interface UserPreferenceRepository extends JpaRepository<UserPreference, Long> {
     UserPreference findByUserIdUser(Long idUser);
+    long countByTheme(String theme);
+
 }

@@ -1,12 +1,16 @@
 package tn.esprit.Controllers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import tn.esprit.Repository.UserPreferenceRepository;
 import tn.esprit.entities.UserPreference;
 import tn.esprit.Services.IUserPreferenceService;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/userPreferences")
@@ -15,6 +19,8 @@ public class UserPreferenceController {
 
     private IUserPreferenceService userPreferenceService;
 
+    @Autowired
+    private UserPreferenceRepository userPreferenceRepository;
     @PostMapping("/{userId}")
     public ResponseEntity<?> addUserPreference(@RequestBody UserPreference userPreference, @PathVariable(required = false) Long userId) {
         if (userId == null) {
@@ -49,6 +55,16 @@ public class UserPreferenceController {
     public ResponseEntity<?> retrieveUserPreference(@PathVariable Long idUser) {
         UserPreference preference = userPreferenceService.retrieveUserPreference(idUser);
         return preference != null ? ResponseEntity.ok(preference) : ResponseEntity.notFound().build();
+    }
+    @GetMapping("/stats/theme")
+    public Object getThemeStats() {
+        long darkModeCount = userPreferenceRepository.countByTheme("dark");
+        long lightModeCount = userPreferenceRepository.countByTheme("light");
+
+        return new Object() {
+            public long darkMode = darkModeCount;
+            public long lightMode = lightModeCount;
+        };
     }
 
 }

@@ -1,11 +1,13 @@
 package tn.esprit.Controllers;
 
 import lombok.AllArgsConstructor;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import tn.esprit.entities.User;
 import tn.esprit.Services.IUserService;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @CrossOrigin(origins = "http://localhost:4200")
@@ -49,4 +51,5 @@ public class UserController {
     public List<User> findByRole(@PathVariable String role) {
         return userService.findByRole(role);
     }
+
 }

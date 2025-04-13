@@ -1,10 +1,13 @@
 package tn.esprit.Controllers;
 
-import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdToken;
 import com.google.api.client.googleapis.auth.oauth2.GoogleIdTokenVerifier;
 import com.google.api.client.http.javanet.NetHttpTransport;
 import com.google.api.client.json.gson.GsonFactory;
+import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.io.Decoders;
+import io.jsonwebtoken.security.Keys;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.slf4j.Logger;
@@ -27,12 +30,13 @@ import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-import org.springframework.web.client.RestTemplate;
 import org.springframework.web.multipart.MultipartFile;
 import tn.esprit.Configuration.JwtUtil;
 import tn.esprit.Configuration.OTPGenerator;
 import tn.esprit.Repository.UserRepository;
 import tn.esprit.Services.EmailService;
+import tn.esprit.Services.RecaptchaService;
+import tn.esprit.Services.SmsService;
 import tn.esprit.Services.UserDetailsServiceImpl;
 import tn.esprit.entities.User;
 import tn.esprit.entities.Gender;
@@ -69,7 +73,10 @@ public class AuthController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
     @Autowired
     private EmailService emailService;
-
+    @Autowired
+    private RecaptchaService recaptchaService;
+    @Autowired
+    private SmsService smsService;
     private final String uploadDir = "uploads/"; // Dossier où stocker les images
 
     @PostMapping(value = "/register", consumes = {"multipart/form-data"})
@@ -88,6 +95,7 @@ public class AuthController {
             @RequestParam(value = "level", required = false) String level,
             @RequestParam(value = "grade", required = false) String grade,
             @RequestParam(value = "address", required = false) String address,
+            @RequestParam(value = "region", required = false) String region,
             @RequestParam("role") String role) {
 
         // 1. Validation des entrées
@@ -137,6 +145,7 @@ public class AuthController {
         user.setCompanyName(companyName);
         user.setLevel(level);
         user.setGrade(grade);
+        user.setRegion(region);
         user.setAddress(address);
         user.setRole(Role.valueOf(role));
 
@@ -711,5 +720,208 @@ public class AuthController {
             return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "OTP invalide"));
         }
     }
+    @PostMapping("/validate-captcha")
+    public ResponseEntity<?> validateCaptcha(@RequestBody Map<String, String> request) {
+        String recaptchaToken = request.get("recaptchaToken");
 
+        if (recaptchaService.verifyRecaptcha(recaptchaToken)) {
+            return ResponseEntity.ok("reCAPTCHA validé avec succès !");
+        } else {
+            return ResponseEntity.badRequest().body("Échec de validation du reCAPTCHA.");
+        }
+    }
+    @PutMapping("/change-password")
+    public ResponseEntity<?> changePassword(@RequestHeader("Authorization") String token,
+                                            @RequestBody Map<String, String> request) {
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid or missing token."));
+        }
+
+        String jwt = token.substring(7);
+        String email = jwtUtil.extractEmail(jwt);
+
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Invalid token."));
+        }
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        String oldPassword = request.get("oldPassword");
+        String newPassword = request.get("newPassword");
+
+        if (oldPassword == null || newPassword == null) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Old and new passwords are required."));
+        }
+
+        if (!passwordEncoder.matches(oldPassword, user.getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(Map.of("error", "Incorrect old password."));
+        }
+
+        if (oldPassword.equals(newPassword)) {
+            return ResponseEntity.badRequest().body(Map.of("error", "New password must be different from the old password."));
+        }
+
+        // Vérifier que le nouveau mot de passe respecte certaines contraintes (longueur, etc.)
+        if (newPassword.length() < 8) {
+            return ResponseEntity.badRequest().body(Map.of("error", "New password must be at least 8 characters long."));
+        }
+
+        // Hash et enregistrer le nouveau mot de passe
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Password changed successfully."));
+    }
+
+    @PostMapping("/forgot-password")
+    public ResponseEntity<?> forgotPassword(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        if (email == null || email.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email is required."));
+        }
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Map.of("error", "User not found."));
+        }
+
+        String rawPhone = user.getPhoneNumber();
+        try {
+            String status = smsService.sendOtp(rawPhone);
+            if ("error".equals(status)) {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Failed to send OTP."));
+            }
+            return ResponseEntity.ok(Map.of("message", "OTP sent successfully."));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Map.of("error", "Server error while sending OTP."));
+        }
+    }
+
+
+
+    @PostMapping("/verify-sms")
+    public ResponseEntity<?> verifyOtp(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+        String otp = request.get("otp");
+
+        if (email == null || otp == null || email.isBlank() || otp.isBlank()) {
+            return ResponseEntity.badRequest().body(Map.of("error", "Email and OTP are required."));
+        }
+
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(404).body(Map.of("error", "User not found."));
+        }
+
+        boolean isValid = smsService.verifyOtp(user.getPhoneNumber(), otp);
+        if (!isValid) {
+            return ResponseEntity.status(401).body(Map.of("error", "Invalid or expired OTP."));
+        }
+
+        // ✅ Générer un token temporaire
+        String resetToken = jwtUtil.generateResetToken(email);
+        System.out.println("✅ Token généré après OTP : " + resetToken); // Debug
+
+        return ResponseEntity.ok(Map.of("token", resetToken));
+    }
+
+
+
+    @PutMapping("/reset-password")
+    public ResponseEntity<?> resetPassword(
+            @RequestHeader("Authorization") String token,
+            @RequestBody Map<String, String> request
+    ) {
+        System.out.println("🔑 Token reçu dans resetPassword : " + token); // Debug
+
+        if (token == null || !token.startsWith("Bearer ")) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid or missing token."));
+        }
+
+        // Extraire le JWT
+        String jwt = token.substring(7);
+        System.out.println("🔑 JWT extrait: " + jwt);
+
+        // Vérifier la validité du token
+        if (!jwtUtil.validateResetToken(jwt)) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid or expired token."));
+        }
+
+        // Extraire l'email du token
+        String email;
+        try {
+            email = jwtUtil.extractEmail(jwt);
+            System.out.println("📧 Email extrait du token: " + email);
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid token format."));
+        }
+
+        if (email == null) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("error", "Invalid token."));
+        }
+
+        // Vérifier si l'utilisateur existe
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found."));
+        }
+
+        // Vérifier le nouveau mot de passe
+        String newPassword = request.get("newPassword");
+        if (newPassword == null || newPassword.length() < 8) {
+            return ResponseEntity.badRequest()
+                    .body(Map.of("error", "New password must be at least 8 characters long."));
+        }
+
+        // Encoder et sauvegarder le nouveau mot de passe
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
+
+        return ResponseEntity.ok(Map.of("message", "Password reset successfully."));
+    }
+
+
+    @PostMapping("/generate-reset-token")
+    public ResponseEntity<?> generateResetToken(@RequestBody Map<String, String> request) {
+        String email = request.get("email");
+
+        // Vérifier si l'utilisateur existe
+        User user = userRepository.findByEmail(email);
+        if (user == null) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND)
+                    .body(Map.of("error", "User not found."));
+        }
+
+        // Générer le token de réinitialisation (10 min)
+        String resetToken = jwtUtil.generateToken((UserDetails) user);
+
+        System.out.println("✅ Token généré : " + resetToken); // Debug backend
+
+        return ResponseEntity.ok(Map.of("resetToken", resetToken));
+    }
+
+    @GetMapping("/gender-stats")
+    public ResponseEntity<Map<String, Long>> getGenderStats() {
+        return ResponseEntity.ok(userDetailsServiceImpl.getGenderStatistics());
+    }
+    @GetMapping("/users-by-region")
+    public Map<String, Long> getUsersByRegion() {
+        List<Object[]> result = userRepository.countUsersByRegion();
+
+        Map<String, Long> stats = new HashMap<>();
+        for (Object[] row : result) {
+            String region = (String) row[0];
+            Long count = (Long) row[1];
+            stats.put(region, count);
+        }
+        return stats;
+    }
 }

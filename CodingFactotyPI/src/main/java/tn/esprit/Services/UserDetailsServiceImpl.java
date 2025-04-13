@@ -8,10 +8,13 @@ import org.springframework.stereotype.Service;
 import tn.esprit.Repository.BanLogRepository;
 import tn.esprit.Repository.UserRepository;
 import tn.esprit.entities.BanLog;
+import tn.esprit.entities.Gender;
 import tn.esprit.entities.User;
 
 import java.sql.Timestamp;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @Service
 @RequiredArgsConstructor
@@ -55,4 +58,11 @@ public class UserDetailsServiceImpl implements UserDetailsService {
                 .max(Timestamp::compareTo) // ✅ Prend la date la plus grande (dernier ban)
                 .orElse(null);
     }
+    public Map<String, Long> getGenderStatistics() {
+        Map<String, Long> stats = new HashMap<>();
+        stats.put("Male", userRepository.countByGender(Gender.MALE));
+        stats.put("Female", userRepository.countByGender(Gender.FEMALE));
+        return stats;
+    }
+
 }

@@ -4,10 +4,8 @@ import lombok.NoArgsConstructor;
 import jakarta.persistence.*;
 import  lombok.*;
 
-import java.time.LocalDateTime;
 import java.util.Date;
 import java.util.List;
-import java.util.Set;
 
 @Entity
 @Getter
@@ -28,16 +26,14 @@ public class Message {
 
     private Long numberOfLikes;
 
-    @ManyToOne
-    private Discussion discussion;
 
-    @ManyToOne
-    private User user;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+
+
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Like> likes;
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
+    private List<Like> likeees;
 
 }

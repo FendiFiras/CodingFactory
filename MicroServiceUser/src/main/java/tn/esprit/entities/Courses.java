@@ -1,11 +1,14 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import  lombok.*;
+
+import java.util.Set;
 
 
 @Entity
@@ -24,7 +27,11 @@ public class Courses {
 
     @Enumerated(EnumType.STRING)
     private CourseDifficulty difficulty;
+
     @ManyToOne
     Training training;
+    @JsonIgnore
+    @OneToMany(cascade= CascadeType.ALL, mappedBy="courses")
+    private Set<Session> sessions;
 
 }

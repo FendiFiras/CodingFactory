@@ -1,6 +1,10 @@
 package tn.esprit.entities;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+<<<<<<<< HEAD:MicroServiceUser/src/main/java/tn/esprit/entities/Evaluation.java
+========
+import com.fasterxml.jackson.annotation.JsonManagedReference;
+>>>>>>>> pfe-managment:MicroservicePfe/src/main/java/tn/esprit/entities/Evaluation.java
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;

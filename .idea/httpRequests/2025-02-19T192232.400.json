@@ -1,0 +1,6 @@
+{
+  "timestamp": "2025-02-19T18:22:32.203+00:00",
+  "status": 400,
+  "error": "Bad Request",
+  "path": "/pidev/partnerships/apply"
+}

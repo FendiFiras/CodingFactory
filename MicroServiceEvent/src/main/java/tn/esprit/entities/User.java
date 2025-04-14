@@ -25,7 +25,11 @@ public class User {
     private String firstName;
     private String lastName;
 
+<<<<<<<< HEAD:MicroServiceEvent/src/main/java/tn/esprit/entities/User.java
     private LocalDate dateOfBirth;
+========
+    private LocalDateTime dateOfBirth;
+>>>>>>>> pfe-managment:MicroservicePfe/src/main/java/tn/esprit/entities/User.java
     private String password;
     @Enumerated(EnumType.STRING)
     private Gender gender;
@@ -59,6 +63,15 @@ public class User {
     private Role role;
 
 
+<<<<<<<< HEAD:MicroServiceEvent/src/main/java/tn/esprit/entities/User.java
+========
+    @ManyToMany(mappedBy = "Users")
+    private Set<Training> trainings;
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Quiz> Quizs;
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Response> studentResponses;
+>>>>>>>> pfe-managment:MicroservicePfe/src/main/java/tn/esprit/entities/User.java
 
 
     @OneToOne(cascade = CascadeType.ALL, orphanRemoval = true)
@@ -87,11 +100,26 @@ public class User {
     private List<Report> reports;
 
     @OneToMany(cascade = CascadeType.ALL)
+<<<<<<<< HEAD:MicroServiceEvent/src/main/java/tn/esprit/entities/User.java
     private List<Like> likes;
+========
+    private List<Like> likeees;
+   
+>>>>>>>> pfe-managment:MicroservicePfe/src/main/java/tn/esprit/entities/User.java
 
 
 
 
+<<<<<<<< HEAD:MicroServiceEvent/src/main/java/tn/esprit/entities/User.java
+========
+
+
+
+
+
+    @OneToMany(cascade = CascadeType.ALL, mappedBy = "user")
+    private Set<Event> events;
+>>>>>>>> pfe-managment:MicroservicePfe/src/main/java/tn/esprit/entities/User.java
 
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Offer> offers;
@@ -113,6 +141,7 @@ public class User {
     @OneToMany(mappedBy = "user")
     private List<Reclamation> reclamations;
 
+<<<<<<<< HEAD:MicroServiceEvent/src/main/java/tn/esprit/entities/User.java
     @JsonIgnore
 
     @OneToMany(cascade= CascadeType.ALL, mappedBy="user")
@@ -130,4 +159,23 @@ public class User {
     @OneToMany(cascade = CascadeType.ALL)
     private Set<Response> studentResponses;
 
+========
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Offer> offers;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Application> applications;
+
+    @OneToMany(cascade = CascadeType.ALL)
+    private Set<Evaluation> evaluationss;
+    @OneToOne
+    private Evaluation evaluation;
+    @OneToMany(cascade = CascadeType.ALL)
+    private  Set<Registration> registrations;
+    @OneToOne
+    private Partnership partnership;
+    @OneToOne
+    private Assignment assignment;
+>>>>>>>> pfe-managment:MicroservicePfe/src/main/java/tn/esprit/entities/User.java
 }
+

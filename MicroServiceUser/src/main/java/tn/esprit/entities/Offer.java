@@ -5,7 +5,12 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.hibernate.engine.internal.Cascade;
 
+<<<<<<<< HEAD:MicroServiceUser/src/main/java/tn/esprit/entities/Offer.java
+========
+import java.util.List;
+>>>>>>>> pfe-managment:MicroservicePfe/src/main/java/tn/esprit/entities/Offer.java
 import java.util.Set;
 
 @Entity

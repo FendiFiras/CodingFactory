@@ -1,5 +1,8 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
@@ -20,13 +23,19 @@ public class Assignment {
     private String status;
     private Date startDate;
     private Date endDate;
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Assigned by User (Manager)
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id")
+    @JsonIgnore
+    private User user;  // User related to the assignment
 
-    @ManyToOne @JoinColumn(name = "partnership_id")
-    private Partnership partnership;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "offer_id")
+    @JsonIgnore
+    private Offer offer;
 
-    @OneToMany(mappedBy = "assignment")
-    private List<Evaluation> evaluations;
 
+    @OneToOne(fetch = FetchType.EAGER, cascade = CascadeType.ALL)
+    @JoinColumn(name = "evaluation_id_evaluation")
+    @JsonManagedReference  // Parent side
+    private Evaluation evaluation;
 }

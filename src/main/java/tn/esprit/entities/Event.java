@@ -63,4 +63,9 @@ public class Event {
     @OneToMany(cascade = CascadeType.ALL)
     private List<Payment> payemnts;
 
+
+
+
+
+
 }

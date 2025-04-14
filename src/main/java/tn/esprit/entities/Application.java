@@ -15,13 +15,17 @@ import java.util.Date;
 public class Application {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idApplication;
+    @Column(nullable = true)
     private float score;
     private Date submissionDate;
+    private Date Availability ;
+    private String FieldofStudy;
     private String status;
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Student who applies
-
-    @ManyToOne @JoinColumn(name = "offer_id")
+    private String University;
+    private String CoverLetter;
+    private String CV;
+    @ManyToOne
+    @JoinColumn(name = "idOffer")
     private Offer offer;
 
 }

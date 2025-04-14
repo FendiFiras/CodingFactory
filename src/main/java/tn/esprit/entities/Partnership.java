@@ -16,16 +16,11 @@ import java.util.List;
 @AllArgsConstructor
 public class Partnership {
     @Id @GeneratedValue(strategy = GenerationType.IDENTITY)
+
     private Long idPartnership;
-    private Date startDate;
-    private Date endDate;
-
-    @ManyToOne @JoinColumn(name = "user_id")
-    private User user; // Company User
-
-    @OneToMany(mappedBy = "partnership")
-    private List<Assignment> assignments;
-
-
+    private String CompanyName;
+    private String Industry;
+    private String CompanyWebsite;
+    private String CompanyLogo;
 
 }

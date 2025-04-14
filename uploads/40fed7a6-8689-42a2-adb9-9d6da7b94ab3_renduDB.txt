@@ -1,0 +1,51 @@
+CREATE ROLE ROLE_TP3;
+
+GRANT CREATE SESSION TO ROLE_TP3;
+GRANT CREATE TABLE TO ROLE_TP3;
+GRANT CREATE ROLE TO ROLE_TP3;
+GRANT CREATE PROCEDURE TO ROLE_TP3 WITH ADMIN OPTION;
+GRANT CREATE FUNCTION TO ROLE_TP3 WITH ADMIN OPTION;
+GRANT SELECT ON HR.EMPLOYEES TO ROLE_TP3;
+GRANT SELECT ON HR.DEPARTMENTS TO ROLE_TP3;
+_______________________________________________________________________________________________
+2)
+GRANT ROLE_TP3 TO TP3;
+_______________________________________________________________________________________________
+3)CONNECT TP3/password;
+CREATE TABLE Etudiants (
+    Matricule NUMBER PRIMARY KEY,
+    Nom VARCHAR2(50),
+    Prenom VARCHAR2(50),
+    Tel VARCHAR2(15),
+    DateNaissance DATE
+);
+------------------------------------------------------------------------------------
+4)CREATE USER TP3_2 IDENTIFIED BY password
+DEFAULT TABLESPACE USERS
+QUOTA 5M ON USERS
+PROFILE profil_tp3;
+_______________________________________________________________________________________________
+5)
+GRANT ROLE_TP3 TO TP3_2;
+___________________________________________________________________________________________________
+6)
+GRANT SELECT, INSERT ON TP3.Etudiants TO TP3_2;
+_______________________________________________________________________________________________
+7)
+CREATE OR REPLACE PROCEDURE Afficher_Privileges_Utilisateur(p_utilisateur VARCHAR2) AS
+BEGIN
+    FOR priv IN (SELECT PRIVILEGE FROM DBA_SYS_PRIVS WHERE GRANTEE = UPPER(p_utilisateur)) LOOP
+        DBMS_OUTPUT.PUT_LINE(priv.PRIVILEGE);
+    END LOOP;
+END;
+/
+_______________________________________________________________________________________________
+8)
+CREATE OR REPLACE PROCEDURE Afficher_Privileges_Role(p_role VARCHAR2) AS
+BEGIN
+    FOR priv IN (SELECT PRIVILEGE, TABLE_NAME FROM DBA_TAB_PRIVS WHERE GRANTEE = UPPER(p_role)) LOOP
+        DBMS_OUTPUT.PUT_LINE(priv.PRIVILEGE || ' ON ' || priv.TABLE_NAME);
+    END LOOP;
+END;
+/
+_______________________________________________________________________________________________

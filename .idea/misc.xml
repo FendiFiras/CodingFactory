@@ -4,24 +4,14 @@
   <component name="MavenProjectsManager">
     <option name="originalFiles">
       <list>
-        <option value="$PROJECT_DIR$/CodingFactotyPI/CodingFactotyPI/pom.xml" />
-        <option value="$PROJECT_DIR$/EventMicroService/CodingFactotyPI/pom.xml" />
-        <option value="$PROJECT_DIR$/MicroServiceEvent/CodingFactotyPI/pom.xml" />
-        <option value="$PROJECT_DIR$/MicroServiceEvent/pom.xml" />
-        <option value="$PROJECT_DIR$/MicroServiceEvent/MicroServiceEvent/pom.xml" />
         <option value="$PROJECT_DIR$/MicroServiceUser/pom.xml" />
-        <option value="$PROJECT_DIR$/MicroServiceTraining/pom.xml" />
-        <option value="$PROJECT_DIR$/MicroservicePfe/pom.xml" />
       </list>
     </option>
-    <option name="ignoredFiles">
-      <set>
-        <option value="$PROJECT_DIR$/MicroServiceEvent/CodingFactotyPI/pom.xml" />
-        <option value="$PROJECT_DIR$/MicroServiceEvent/MicroServiceEvent/pom.xml" />
-      </set>
-    </option>
   </component>
-  <component name="ProjectRootManager" version="2" project-jdk-name="openjdk-23" project-jdk-type="JavaSDK">
+  <component name="ProjectRootManager" version="2" languageLevel="JDK_17" default="true" project-jdk-name="17" project-jdk-type="JavaSDK">
     <output url="file://$PROJECT_DIR$/out" />
+  </component>
+  <component name="ProjectType">
+    <option name="id" value="jpab" />
   </component>
 </project>

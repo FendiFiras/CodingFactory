@@ -16,10 +16,10 @@ import java.util.List;
 @AllArgsConstructor
 public class Discussion {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long discussion_id;
+    private String title;  // Ajout du champ title
 
     private String description;
     private Long numberOfLikes;
@@ -27,13 +27,13 @@ public class Discussion {
     @Temporal(TemporalType.TIMESTAMP)
     private Date publicationDate;
 
-    @ManyToOne
-    private Forum forum;
 
+    @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
 
-
-    @OneToMany(mappedBy = "discussion", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Message> messages;
+
+
+
 
 
 }

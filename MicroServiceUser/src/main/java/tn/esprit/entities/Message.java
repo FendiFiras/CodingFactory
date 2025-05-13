@@ -1,8 +1,10 @@
 package tn.esprit.entities;
-import lombok.AllArgsConstructor;
-import lombok.NoArgsConstructor;
+
 import jakarta.persistence.*;
-import  lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.util.Date;
 import java.util.List;
@@ -25,9 +27,9 @@ public class Message {
     private Date messageDate;
 
     private Long numberOfLikes;
-
-
-
+    private Double latitude; // Ajoutez ce champ
+    private Double longitude; // Ajoutez ce champ
+    private String audioUrl; // Ajouter ce champ
 
 
     @OneToMany( cascade = CascadeType.ALL)
@@ -35,5 +37,10 @@ public class Message {
 
     @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<Like> likes;
+
+
+    @Column(nullable = false)
+    private boolean anonymous = false;
+
 
 }

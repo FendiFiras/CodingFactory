@@ -110,7 +110,8 @@ public class ApplicationController {
 
         for (Application application : applications) {
             // Make sure the path is absolute and exists
-            File file = new File("uploads/cvs/" + application.getCV());
+            Path path = Paths.get("C:/Users/OCTANET/Documents/GitHub/CodingFactory/MicroservicePfe/uploads/cvs", application.getCV());
+            File file = path.toFile();
             System.out.println("Processing CV file: " + file.getAbsolutePath());
 
             try {

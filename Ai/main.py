@@ -33,7 +33,7 @@ class VideoRequest(BaseModel):
 @app.post("/analyze")
 async def analyze_video(request: VideoRequest):
     filename = request.filename
-    video_url = f"http://localhost:8089/event/{filename}"
+    video_url = f"http://localhost:8087/event/{filename}"
     local_video_path = os.path.abspath("temp_video.mp4")
     local_audio_path = os.path.abspath("temp_audio.wav")
 

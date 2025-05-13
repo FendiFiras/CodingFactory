@@ -7,7 +7,9 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 
 @Entity
 @Getter
@@ -16,7 +18,6 @@ import java.util.List;
 @AllArgsConstructor
 public class Forum {
 
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long forum_id;
@@ -24,12 +25,15 @@ public class Forum {
     private String title;
     private String description;
     private String image;
+
     @Temporal(TemporalType.TIMESTAMP)
     private Date creationDate;
 
     @OneToMany( cascade = CascadeType.ALL)
     private List<Discussion> discussions;
 
+    @ManyToMany
+    private Set<User> Users=new HashSet<>();
 
 
 

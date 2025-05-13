@@ -7,7 +7,6 @@ import jakarta.persistence.*;
 import  lombok.*;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Set;
 
@@ -74,19 +73,21 @@ public class User {
     private Set<LoginHistory> loginHistories;
 
 
-    @OneToMany(cascade = CascadeType.ALL)
-    private Set<Forum> Forums;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    private List<Forum> forums;
+
+
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Discussion> discussions;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Message> messages;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToMany(cascade = CascadeType.ALL)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Like> likes;
 
 
@@ -110,7 +111,7 @@ public class User {
     private Assignment assignment;
 
 //evenement
-    @OneToMany(mappedBy = "user")
+    @OneToMany
     private List<Reclamation> reclamations;
 
     @JsonIgnore

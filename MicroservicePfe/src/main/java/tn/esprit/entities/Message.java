@@ -27,17 +27,20 @@ public class Message {
     private Date messageDate;
 
     private Long numberOfLikes;
+    private Double latitude; // Ajoutez ce champ
+    private Double longitude; // Ajoutez ce champ
+    private String audioUrl; // Ajouter ce champ
 
-    @ManyToOne
-    private Discussion discussion;
 
-    @ManyToOne
-    private User user;
-
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany( cascade = CascadeType.ALL)
     private List<Report> reports;
 
-    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "message", cascade = CascadeType.ALL)
     private List<Like> likes;
+
+
+    @Column(nullable = false)
+    private boolean anonymous = false;
+
 
 }

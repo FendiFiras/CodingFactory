@@ -17,7 +17,8 @@ import java.util.List;
 public class AiScoreService {
 
     public float calculateMatchScore(File file, String requiredSkills) throws IOException {
-        ProcessBuilder processBuilder = new ProcessBuilder("python", "Ai/ai_score.py", file.getAbsolutePath(), requiredSkills);
+
+        ProcessBuilder processBuilder = new ProcessBuilder("python", "CodingFactory/MicroservicePfe/Ai/ai_score.py", file.getAbsolutePath(), requiredSkills);
         processBuilder.redirectErrorStream(true); // Merges stderr with stdout
 
         Process process = processBuilder.start();
@@ -27,15 +28,23 @@ public class AiScoreService {
         String lastLine = null;
 
         while ((line = reader.readLine()) != null) {
-            lastLine = line;  // Keeps overwriting until the last line
+            System.out.println("FROM PYTHON: " + line); // ✅ Show every line from Python
+            lastLine = line;
         }
 
-        try {
-            return Float.parseFloat(lastLine.trim());
-        } catch (NumberFormatException e) {
-            System.out.println("Invalid score format received from Python: " + lastLine);
-            return 0f;
+// ✅ Handle possible issues: empty or invalid output
+        if (lastLine != null) {
+            try {
+                return Float.parseFloat(lastLine.trim());
+            } catch (NumberFormatException e) {
+                System.err.println("❌ Failed to parse score: " + lastLine);
+            }
+        } else {
+            System.err.println("❌ No output from Python script");
         }
+
+        return 0f; // Default if error
+
     }
 
 

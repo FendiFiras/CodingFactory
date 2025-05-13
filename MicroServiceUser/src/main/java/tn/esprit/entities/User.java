@@ -111,7 +111,7 @@ public class User {
 
     //events
 
-    @OneToMany(mappedBy = "user")
+    @OneToMany
     private List<Reclamation> reclamations;
 
     @JsonIgnore

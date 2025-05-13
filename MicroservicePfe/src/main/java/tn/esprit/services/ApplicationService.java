@@ -35,7 +35,7 @@ public class ApplicationService implements IApplicationService {
             String cvFilename = app.getCV();
             if (cvFilename != null && !cvFilename.isEmpty()) {
                 // Process the CV file and calculate the score
-                File file = Paths.get("uploads", "cvs", cvFilename).toFile();
+                File file = Paths.get("CodingFactory","MicroservicePfe","uploads", "cvs", cvFilename).toFile();
                 try {
                     float score = aiScoreService.calculateMatchScore(file, requiredSkills);
                     app.setScore(score);  // Assign the calculated score to the application

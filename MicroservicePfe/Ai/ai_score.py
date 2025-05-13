@@ -3,25 +3,35 @@ from pdf2image import convert_from_path
 import re
 import sys
 from fuzzywuzzy import fuzz
-print(f"Received arguments: {sys.argv}")
+import os
 
-# Configure pytesseract to use the installed tesseract executable
-pytesseract.pytesseract.tesseract_cmd = r"C:\Users\ali\python\tesseract.exe"  # Ensure correct path
+# Debug: print arguments received
+print(f"FROM PYTHON: Received arguments: {sys.argv}")
 
-# Function to extract text from a PDF
+# ✅ Configure tesseract executable path (update this to match your installation)
+pytesseract.pytesseract.tesseract_cmd = r"C:\Users\OCTANET\aiali\tesseract.exe"
+
+# ✅ Set the path to Poppler's bin folder (update this to your Poppler path)
+POPPLER_PATH = r"C:\Users\OCTANET\Downloads\Release-24.08.0-0\poppler-24.08.0\Library\bin"  # adjust to your version and installation path
+
+# Extract text from PDF using OCR
 def extract_text(pdf_path):
+    if not os.path.exists(pdf_path):
+        print(f"FROM PYTHON: PDF file does not exist at: {pdf_path}")
+        return ""
+
     try:
-        images = convert_from_path(pdf_path)
+        # Convert PDF to images
+        images = convert_from_path(pdf_path, poppler_path=POPPLER_PATH)
         text = ""
-        # Extract text from each image using pytesseract
         for img in images:
             text += pytesseract.image_to_string(img)
         return text
     except Exception as e:
-        print(f"Error extracting text from PDF: {e}")
+        print(f"FROM PYTHON: Error extracting text from PDF: {e}")
         return ""
 
-# Function to match skills from CV to required skills
+# Match skills between required and CV
 def match_skills(cv_text, required_skills):
     matched_skills = 0
     cleaned_text = re.sub(r'[^\w\s]', '', cv_text.lower())
@@ -32,7 +42,7 @@ def match_skills(cv_text, required_skills):
                 break
     return matched_skills
 
-# Function to calculate match score
+# Calculate matching score
 def calculate_match_score(pdf_path, required_skills):
     cv_text = extract_text(pdf_path)
     if cv_text:
@@ -41,10 +51,10 @@ def calculate_match_score(pdf_path, required_skills):
         score = (matched_count / total_skills) * 100 if total_skills > 0 else 0
         return score
     else:
-        print("No text extracted from the CV.")
+        print("FROM PYTHON: No text extracted from the CV.")
         return 0
 
-# Main function to accept command line arguments
+# Entry point
 if __name__ == "__main__":
     if len(sys.argv) != 3:
         print("Usage: python ai_score.py <cv_path> <required_skills>")
@@ -55,4 +65,5 @@ if __name__ == "__main__":
 
     match_score = calculate_match_score(cv_path, required_skills)
 
-print(f"{match_score:.2f}")
+    # Final output for Java to parse
+    print(f" {match_score:.2f}")

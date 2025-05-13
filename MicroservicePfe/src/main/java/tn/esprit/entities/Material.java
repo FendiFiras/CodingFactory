@@ -1,29 +1,28 @@
 package tn.esprit.entities;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
-import lombok.Getter;
+import lombok.Data;
 import lombok.NoArgsConstructor;
-import lombok.Setter;
-
-import java.util.List;
 
 @Entity
-@Getter
-@Setter
-@NoArgsConstructor
+@Data
 @AllArgsConstructor
+@NoArgsConstructor
+@JsonIgnoreProperties({"hibernateLazyInitializer", "handler"})  // ✅ Prevent Hibernate serialization issues
 public class Material {
+
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idMaterial;
+
     private String label;
+
     private Integer quantity;
 
-    @ManyToMany(mappedBy = "materials")
-    private List<Reclamation> reclamations;
-
-
-
-
+    @OneToOne(fetch = FetchType.LAZY, mappedBy = "material", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonBackReference
+    private Supplier supplier;
 }

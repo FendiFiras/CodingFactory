@@ -25,10 +25,6 @@ public class Report {
     @Temporal(TemporalType.TIMESTAMP)
     private Date reportDate;
 
-    @ManyToOne
-    private Message message;
 
-    @ManyToOne
-    private User user;
 
 }

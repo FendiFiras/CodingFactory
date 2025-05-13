@@ -1,4 +1,5 @@
 package tn.esprit.entities;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
@@ -24,9 +25,10 @@ public class Registration {
     private LocalDateTime registrationDate;
 
     private Boolean confirmation;
+    @JsonIgnore
     @ManyToOne
     Event event;
-
+@JsonIgnore
     @ManyToOne
     User user;
 

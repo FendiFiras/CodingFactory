@@ -88,7 +88,7 @@ public class User {
 
 
     //evenement
-    @OneToMany(mappedBy = "user")
+    @OneToMany
     private List<Reclamation> reclamations;
 
     @JsonIgnore
